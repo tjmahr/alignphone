@@ -1,16 +1,26 @@
+---
+output: github_document
+---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
 # alignphone
 
-The goal of alignphone is to …
+The goal of alignphone is to ...
 
 ## the problem
 
-We get two sequences of words segmented out into phonemes. The question
-is how to align these two sequences.
+We get two sequences of words segmented out into phonemes. The
+question is how to align these two sequences.
 
-``` r
+```{r}
 x <- c(
   # the bird landed behind the shaggy dog
   "dh-4 b-3^-d l-ae-n-d-I-d b-i-h-@I-n-d dh-4 sh-ae-g-i d-c-g")
@@ -19,29 +29,22 @@ y <- c(
   "dh-4 b-3^-d l-ae-n-d-I-d b-i-h-@I-n-d sh-e-k-i d-c-g")
 ```
 
-The `textreuse` library helps us here. It treats each phoneme as a word
-and tries align these words.
+The `textreuse` library helps us here. It treats each phoneme as a word and
+tries align these words.
 
-``` r
+```{r}
 library(textreuse)
 library(purrr)
 align_local(x, y)
-#> TextReuse alignment
-#> Alignment score: 40 
-#> Document A:
-#> dh 4 b 3 d l ae n d I d b i h I n d dh 4 sh ae # g # i d c g
-#> 
-#> Document B:
-#> dh 4 b 3 d l ae n d I d b i h I n d ## # sh ## e # k i d c g
 ```
 
-But note that the nontext characters in “@I” and “3^” disappear. For
-that reason, it would be helpful to do a pass that replace
-punctuation-based fake IPA with word-character-based fake IPA. Let’s
-make something to replace the nontext characters with IPA. We will
-eventually need to write something to comprehensively work in IPA.
+But note that the nontext characters in "@I" and "3^" disappear. For that
+reason, it would be helpful to do a pass that replace punctuation-based fake IPA
+with word-character-based fake IPA. Let's make something to replace the nontext
+characters with IPA. We will eventually need to write something to
+comprehensively work in IPA.
 
-``` r
+```{r}
 fix_ipa <- function(x) {
   x %>%
     stringr::str_replace_all("3\\^", "3r") %>%
@@ -52,19 +55,12 @@ x <- fix_ipa(x)
 y <- fix_ipa(y)
 
 align_local(x, y)
-#> TextReuse alignment
-#> Alignment score: 40 
-#> Document A:
-#> dh 4 b 3r d l ae n d I d b i h aI n d dh 4 sh ae # g # i d c g
-#> 
-#> Document B:
-#> dh 4 b 3r d l ae n d I d b i h aI n d ## # sh ## e # k i d c g
 ```
 
-One more thing we should is a function to print the alignments with bars
-like the original ShowAndTell program did.
+One more thing we should is a function to print the alignments with bars like
+the original ShowAndTell program did.
 
-``` r
+```{r}
 to_chars <- function(x) {
   x %>% 
     strsplit(" ") %>% 
@@ -88,27 +84,22 @@ print_alignment <- function(alignment) {
 
 align_local(x, y) %>% 
   print_alignment()
-#> dh 4 b 3r d l ae n d I d b i h aI n d dh 4 sh ae # g # i d c g
-#> |  | | |  | | |  | | | | | | | |  | |      |           | | | | 
-#> dh 4 b 3r d l ae n d I d b i h aI n d ## # sh ## e # k i d c g
 ```
 
-This looks really good so far. This alignment procedure leaves some
-information on the table, however: There is no credit for partial
-matching. The algorithm gives n-points for a “sh” matching in
-shaggy/shaky, but the “g”/“k” is not arbitrary non-match. That should be
-worth some partial credit based on how the two only differ in one
-phonetic feature. But let’s hold this thought.
+This looks really good so far. This alignment procedure leaves some information
+on the table, however: There is no credit for partial matching. The algorithm
+gives n-points for a "sh" matching in shaggy/shaky, but the "g"/"k" is not
+arbitrary non-match. That should be worth some partial credit based on how the
+two only differ in one phonetic feature. But let's hold this thought.
 
-One thing that is missing is some treatment of spaces between words. We
-would like to use those when scoring alignments too. But let’s hold this
-thought too.
+One thing that is missing is some treatment of spaces between words. We would
+like to use those when scoring alignments too. But let's hold this thought too.
 
 ### the challenge example
 
 Our first priority is to fix the algorithm to handle the next example.
 
-``` r
+```{r}
 x2 <- c(
   # point to teddy
   "p-cI-n-t t-u t-E-d-I")
@@ -118,18 +109,15 @@ y2 <- c(
 
 align_local(x2, y2) %>% 
   print_alignment()
-#> p cI n t t u t E d I
-#> | |  | | |     | | | 
-#> p cI n t t # # E d I
 ```
 
-The problem here is that “t” is assigned to “to” instead of “teddy” so
-that it seems like the child said “point t eddy”.
+The problem here is that "t" is assigned to "to" instead of "teddy" so that it
+seems like the child said "point t eddy". 
 
-One possibility is to insert word-spaces as explicit words that can be
-aligned, but that doesn’t help.
+One possibility is to insert word-spaces as explicit words that can be aligned,
+but that doesn't help.
 
-``` r
+```{r}
 str_mark_space <- function(x, replace = "space") {
   stringr::str_replace_all(x, " ", paste0(" ", replace, " "))
 }
@@ -139,18 +127,16 @@ align_local(
   str_mark_space(x2), 
   str_mark_space(y2)) %>% 
   print_alignment()
-#> p cI n t space t u space t E d I
-#> | |  | | |     |           | | | 
-#> p cI n t space t # ##### # E d I
 ```
+
 
 ## bigramify
 
-I think that aligning phonemes might work easier if we do a first pass
-on bigrams. As a matter of good practice, let’s write a general
-n-gramming function.
+I think that aligning phonemes might work easier if we do a first pass on
+bigrams. As a matter of good practice, let's write a general n-gramming
+function.
 
-``` r
+```{r}
 str_tokenize <- function(x) {
   stringr::str_split(x, " ")[[1]]
 }
@@ -286,11 +272,13 @@ finalize_alignment <- function(alignment) {
   alignment$b_edits <- stringr::str_flatten(b, " ")
   alignment
 }
+
+
 ```
 
-Let’s run through the whole process.
+Let's run through the whole process.
 
-``` r
+```{r}
 align_bigrams <- function(x, y, match = 4L, ...) {
   x1 <- x %>% str_mark_space() %>% str_ngramify(2)
   y1 <- y %>% str_mark_space() %>% str_ngramify(2)
@@ -306,51 +294,39 @@ align_bigrams <- function(x, y, match = 4L, ...) {
 
 align_bigrams(x, y) %>% 
   print_alignment()
-#> dh 4 _ b 3r d _ l ae n d I d _ b i h aI n d _ dh 4 _ sh ae # g # i _ d c g
-#> |  | | | |  | | | |  | | | | | | | | |  | | |        |           | | | | | 
-#> dh 4 _ b 3r d _ l ae n d I d _ b i h aI n d _ ## # # sh ## e # k i _ d c g
 ```
 
-Back to the hard one…
+Back to the hard one...
 
-``` r
+```{r}
 align_bigrams(x2, y2) %>% 
   print_alignment()
-#> p cI n t _ t u _ t E d I
-#> | |  | | |       | | | | 
-#> p cI n t _ # # # t E d I
 ```
+
 
 ## The next problem is IPA
 
-The following works interactively, but it doesn’t work when I render
-this report.
+The following works interactively, but it doesn't work when I render this report.
 
-``` r
+```{r}
 phone1 <- c("ð-ə b-ɜr-d")
 phone2 <- c("ð-ə b-ɜr-d")
 
 print(phone1)
-#> [1] "ð-<U+0259> b-<U+025C>r-d"
 
 align_bigrams(phone1, phone2)
-#> TextReuse alignment
-#> Alignment score: 36 
-#> Document A:
-#> ðx22x U 0259 _ bx22x U 025C r d
-#> 
-#> Document B:
-#> ðx22x U 0259 _ bx22x U 025C r d
 ```
 
 The output should be:
 
-    TextReuse alignment
-    Alignment score: 40 
-    Document A:
-    ð ə _ b ɜr d
-    
-    Document B:
-    ð ə _ b ɜr d
+```
+TextReuse alignment
+Alignment score: 40 
+Document A:
+ð ə _ b ɜr d
+
+Document B:
+ð ə _ b ɜr d
+```
 
 Note that the alignment scores are different.

@@ -1,0 +1,167 @@
+
+```{r}
+library(purrr)
+
+
+align_words <- function(x, y) {
+
+
+  to_chars <- . %>% strsplit(" ") %>% unlist()
+  x_words <- to_chars(x1) %>% paste0(collapse = " SPACESPACESPACE ")
+  y_words <- to_chars(y1) %>% paste0(collapse = " SPACESPACESPACE ")
+
+  xw <- stringr::str_remove_all(x, "-") %>%
+    stringr::str_replace_all("3\\^", "ɜr") %>%
+    stringr::str_replace_all("@I", "aɪ")
+  yw <- stringr::str_remove_all(y, "-") %>%
+    stringr::str_replace_all("3\\^", "ɜr") %>%
+    stringr::str_replace_all("@I", "aɪ")
+  #
+  #   x_blobs <- to_chars(xw)
+  #   y_blobs <- to_chars(yw)
+  #
+  #   x_map <- setNames(x_words, x_blobs)
+  #   y_map <- setNames(y_words, y_blobs)
+  #
+  #
+  #   alignment <- align_local(xw, yw, match = 5)
+  #
+  alignment <- align_local(x_words, y_words, match = 5)
+  alignment$a_edits <- alignment$a_edits %>%
+    stringr::str_replace_all("SPACESPACESPACE", "_") %>%
+    stringr::str_replace_all("###############", "#") %>%
+    stringr::str_replace_all("22|33", " ")
+
+  alignment$b_edits <- alignment$b_edits %>%
+    stringr::str_replace_all("SPACESPACESPACE", "_") %>%
+    stringr::str_replace_all("###############", "#") %>%
+    stringr::str_replace_all("22|33", " ")
+
+  alignment
+  #
+  #   x_edit_words <- to_chars(alignment$a_edits)
+  #   y_edit_words <- to_chars(alignment$b_edits)
+  #   matches <- x_edit_words == y_edit_words
+  #   placeholders <- paste0("word", seq_len(sum(matches)))
+  #
+  #   names(x_map)
+  #   x_edit_words[matches]
+  #
+  #
+  #   x_map2 <- x_map
+  #   x_map2[] <- x_edit_words[matches]
+  #   y_map2 <- y_map
+  #   y_map2[y_edit_words[matches]] <- y_edit_words[matches]
+  #
+  #   xw2 <- paste0(x_map2, collapse = ' ')
+  #   yw2 <- paste0(y_map2, collapse = ' ')
+  #
+  #   phone_alignment <- align_local(xw2, yw2, match = 4)
+  #
+  #   x_map
+  #
+  #
+  #   phone_alignment$a_edits %>% to_chars()
+}
+
+# How does the matching work on ASCII pseudo-IPA?
+x <- phone1 <- c(
+  "dh-4 b-3^-d l-ae-n-d-I-d b-i-h-@I-n-d dh-4 sh-ae-g-i d-c-g")
+y <- phone2 <- c(
+  "dh-4 b-3^-d l-ae-n-d-I-d b-i-h-@I-n-d sh-e-k-i d-c-g")
+align_local(phone1, phone2)
+
+align_words(phone1, phone2) %>% print_alignment()
+
+# I want to see if I can use IPA unicode characters instead of pseudo IPA.
+phone1 <- c(
+  "ð-ə b-ɜr-d l-ae-n-d-ɪ-d b-i-h-aɪ-n-d ð-ə ʃ-æ-g-i d-ɔ-g")
+phone2 <- c(
+  "ð-ə b-ɜr-d l-ae-n-d-ɪ-d b-i-h-aɪ-n-d ʃ-e-k-i d-ɔ-g")
+align_words(phone1, phone2) %>% print_alignment()
+
+alineR::aline(w1=phone1,w2=y)
+
+
+phone1 <- c(
+  "ð-ə-SPACE-b-ɜr-d l-ae-n-d-ɪ-d b-i-h-aɪ-n-d ð-ə ʃ-æ-g-i d-ɔ-g")
+phone2 <- c(
+  "ð-ə-SPACE-b-ɜr-d l-ae-n-d-ɪ-d b-i-h-aɪ-n-d ʃ-e-k-i d-ɔ-g")
+x <- align_local(phone1, phone2)
+
+
+
+
+# I want to see if I can use IPA unicode characters instead of pseudo IPA.
+phone1 <- c(
+  "ð-ə b-ɜr-d l-ae-n-d-ɪ-d b-i-h-aɪ-n-d ð-ə ʃ-æ-g-i d-ɔ-g")
+phone2 <- c(
+  "ð-ə b-ɜr-d l-ae-n-d-ɪ-d b-i-h-aɪ-n-d ʃ-e-k-i d-ɔ-g")
+align_words(phone1, phone2) %>% print_alignment()
+
+
+
+align_words(phone1, phone2) %>%
+  print_alignment()
+
+align_local(phone1, phone2)
+
+x <- c(
+  "ð-ə b-ɜr-d l-ae-n-d-ɪ-d b-i-h-aɪ-n-d ð-ə ʃ-æ-g-i d-ɔ-g")
+y <- c(
+  "ð-ə b-ɜr-d l-ae-n-d-ɪ-d b-i-h-aɪ-n-d ʃ-e-k-i d-ɔ-g")
+
+x <- align_local(phone1, phone2)
+align_local(phone1, phone2) %>% print_alignment()
+
+
+phone1 <- c(
+  "p-cI-n-t t-u t-E-d-I")
+phone2 <- c(
+  "p-cI-n-t t-E-d-I")
+align_words(phone1, phone2)
+
+phone1 <- c(
+  "p-cI-n-t t-u t-E-d-I")
+
+phone2 <- c(
+  "p-cI-n-t t-E-d-I")
+x <- phone2
+align_words(bigramify(phone1), bigramify(phone2)) %>% print_alignment()
+
+
+x <- c(
+  "ð-ə b-ɜr-d l-ae-n-d-ɪ-d b-i-h-aɪ-n-d ð-ə ʃ-æ-g-i d-ɔ-g")
+y <- c(
+  "ð-ə b-ɜr-d l-ae-n-d-ɪ-d b-i-h-aɪ-n-d ʃ-e-k-i d-ɔ-g")
+
+align_words(bigramify(x), bigramify(y)) %>% print_alignment()
+x <- bigramify(x)
+y <- bigramify(y)
+
+
+
+
+```
+
+
+
+
+# bigramify <- function(x) {
+#   words <- stringr::str_split(x, " ")[[1]]
+#   words_seq <- seq_along(words)
+#   for (word_i in words_seq) {
+#     word <- words[word_i]
+#     dashes <- seq_len(stringr::str_count(word, "-"))
+#     for (dash_i in dashes) {
+#       if (dash_i %% 2 == 1) {
+#         word <- stringr::str_replace(word, "-", "22")
+#       } else {
+#         word <- stringr::str_replace(word, "-", "33")
+#       }
+#     }
+#     words[word_i] <- stringr::str_replace(word, "33", "-")
+#   }
+#   paste0(words, collapse = " ")
+# }
+# 
