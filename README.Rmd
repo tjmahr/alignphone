@@ -48,7 +48,12 @@ comprehensively work in IPA.
 fix_ipa <- function(x) {
   x %>%
     stringr::str_replace_all("3\\^", "3r") %>%
-    stringr::str_replace_all("@I", "aI")
+    stringr::str_replace_all("@I", "aI") %>% 
+    stringr::str_replace_all("@U", "aU") %>% 
+    stringr::str_replace_all("4\\^", "4\\r") %>% 
+    stringr::str_replace_all("@", "a") %>% 
+    stringr::str_replace_all(" \\^", " A") %>% 
+    stringr::str_replace_all("-\\^", "-A") 
 }
   
 x <- fix_ipa(x)
@@ -245,8 +250,14 @@ finalize_alignment <- function(alignment) {
     y <- clean_word(y)
     if (stringr::str_detect(x, "#")) {
       x <- stringr::str_flatten(rep("#", nchar(y)))
+      if (nchar(y) == 0) {
+        x <- ""
+      } 
     } else if (stringr::str_detect(y, "#")) {
-      y <- stringr::str_flatten(rep("#", nchar(x)))      
+      y <- stringr::str_flatten(rep("#", nchar(x)))
+      if (nchar(x) == 0) {
+        y <- ""
+      } 
     }
     list(x, y)
   }
@@ -260,6 +271,9 @@ finalize_alignment <- function(alignment) {
       a[edit_i] <- clean_word(a[edit_i])
       b[edit_i] <- clean_word(b[edit_i])
     } else {
+      x <- a[edit_i]
+      y <- b[edit_i]
+      
       a_b <- clean_pair(a[edit_i], b[edit_i])
       a[edit_i] <- a_b[[1]]
       b[edit_i] <- a_b[[2]]
@@ -288,12 +302,9 @@ align_bigrams <- function(x, y, match = 4L, ...) {
   alignment %>% 
     make_bigram_matches_words() %>% 
     remove_edit_marks() %>% 
-    realign(match = 4L, gap = -1) %>% 
+    realign(match = 4L) %>% 
     finalize_alignment()
 }
-
-align_bigrams(x, y) %>% 
-  print_alignment()
 ```
 
 Back to the hard one...
@@ -330,3 +341,35 @@ Document B:
 ```
 
 Note that the alignment scores are different.
+
+
+## More testing
+
+```{r, error=TRUE}
+tests <- yaml::read_yaml("align.yaml")
+
+for (test in tests) {
+  clean_input <- . %>% 
+    fix_ipa() %>% 
+    stringr::str_replace_all("-+", "-") %>% 
+    stringr::str_replace_all(" -", " ") %>% 
+    stringr::str_replace_all("- ", " ")
+  
+  x <- test$char_a %>% 
+    clean_input()
+  y <- test$char_b %>% 
+    clean_input()
+  
+  cat(test$gloss_a, "\n")
+  cat(test$char_a, "\n")
+  align_bigrams(x, y) %>% 
+    print_alignment()
+  cat(test$char_b, "\n")
+  cat(test$gloss_b, "\n")
+
+  cat("\n")
+
+}
+```
+
+Looks like I need to fix cases where many words are different...

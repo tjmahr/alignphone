@@ -1,0 +1,1029 @@
+
+- gloss_a: He gave mommy a birthday card
+  gloss_b: he give mommy a birthday card
+  char_a: h-i g-eI-v m-@-m-i 4 b-3^-th-d-eI k-@-r-d
+  char_b: h-i g-I--v m-@-m-i 4 b-3^-th-d-eI k-@-r-d
+  match: |
+    h-i g-eI-v m-@-m-i 4 b-3^-th-d-eI k-@-r-d
+    | |||    ||| | | ||||| |  |  | | || | | |
+    h-i g-I--v m-@-m-i 4 b-3^-th-d-eI k-@-r-d
+
+
+- gloss_a: Baby likes his new toy
+  gloss_b: baby likes his new toy
+  char_a: b-eI-b-i l-@I-k-s h-I-z n-u t-cI
+  char_b: b-eI-b-i l-@I-k-s h-I-z n-u t-cI
+  match: |
+    b-eI-b-i l-@I-k-s h-I-z n-u t-cI
+    | |  | ||| |  | ||| | ||| ||| |
+    b-eI-b-i l-@I-k-s h-I-z n-u t-cI
+
+
+- gloss_a: Doctor bag
+  gloss_b: doctor big
+  char_a: d-@-k-t-4^ b-ae-g
+  char_b: d-@-k-t-4^ b-I--g
+  match: |
+    d-@-k-t-4^ b-ae-g
+    | | | | | ||    |
+    d-@-k-t-4^ b-I--g
+
+
+- gloss_a: The bird landed behind the shaggy dog
+  gloss_b: the bird landed behind the shaky dog
+  char_a: dh-4 b-3^-d l-ae-n-d-I-d b-i-h-@I-n-d dh-4 sh-ae-g-i d-c-g
+  char_b: dh-4 b-3^-d l-ae-n-d-I-d b-i-h-@I-n-d dh-4 sh-ae-k-I d-c-g
+  match: |
+    dh-4 b-3^-d l-ae-n-d-I-d b-i-h-@I-n-d dh-4 sh-ae-g-i d-c-g
+    |  ||| |  ||| |  | | | ||| | | |  | |||  |||  |     || | |
+    dh-4 b-3^-d l-ae-n-d-I-d b-i-h-@I-n-d dh-4 sh-ae-k-I d-c-g
+
+
+- gloss_a: There's a playground near the school
+  gloss_b: there's a playground near the school
+  char_a: dh-E-r-z 4 p-l-eI-g-r-@U-n-d n-i-r dh-4 s-k-u-l
+  char_b: dh-E-r-z 4 p-l-eI-g-r-@U-n-d n-i-r dh-4 s-k-u-l
+  match: |
+    dh-E-r-z 4 p-l-eI-g-r-@U-n-d n-i-r dh-4 s-k-u-l
+    |  | | ||||| | |  | | |  | ||| | |||  ||| | | |
+    dh-E-r-z 4 p-l-eI-g-r-@U-n-d n-i-r dh-4 s-k-u-l
+
+
+- gloss_a: Open the house
+  gloss_b: open the house
+  char_a: oU-p-4-n dh-4 h-@U-s
+  char_b: oU-p-4-n dh-4 h-@U-s
+  match: |
+    oU-p-4-n dh-4 h-@U-s
+    |  | | |||  ||| |  |
+    oU-p-4-n dh-4 h-@U-s
+
+
+- gloss_a: Hug daddy
+  gloss_b: hug daddy
+  char_a: h-^-g d-ae-d-i
+  char_b: h-^-g d-ae-d-i
+  match: |
+    h-^-g d-ae-d-i
+    | | ||| |  | |
+    h-^-g d-ae-d-i
+
+
+- gloss_a: Point to Teddy
+  gloss_b: point teddy
+  char_a: p-cI-n-t t-u t-E-d-I
+  char_b: p-cI-n-t ----t-E-d-I
+  match: |
+    p-cI-n-t t-u t-E-d-I
+    | |  | ||    | | | |
+    p-cI-n-t ----t-E-d-I
+
+
+- gloss_a: They ate birthday cake and drank pop
+  gloss_b: they ate birthday cake and drink pop
+  char_a: dh-eI eI-t b-3^-th-d-eI k-eI-k ae-n-d-d-r-ae-ng-k p-@-p
+  char_b: dh-eI eI-t b-3^-th-d-eI k-eI-k ae-n-d-d-r-I--ng-k p-@-p
+  match: |
+    dh-eI eI-t b-3^-th-d-eI k-eI-k ae-n-d-d-r-ae-ng-k p-@-p
+    |  | ||  ||| |  |  | | || |  |||  | | | |    |  ||| | |
+    dh-eI eI-t b-3^-th-d-eI k-eI-k ae-n-d-d-r-I--ng-k p-@-p
+
+
+- gloss_a: Tie those shoes
+  gloss_b: tie those shoes
+  char_a: t-@I dh-oU-z sh-u-z
+  char_b: t-@I dh-oU-z sh-u-z
+  match: |
+    t-@I dh-oU-z sh-u-z
+    | | ||  |  |||  | |
+    t-@I dh-oU-z sh-u-z
+
+
+- gloss_a: Get off
+  gloss_b: get off
+  char_a: g-E-t c-f
+  char_b: g-E-t c-f
+  match: |
+    g-E-t c-f
+    | | ||| |
+    g-E-t c-f
+
+
+- gloss_a: That is her dog
+  gloss_b: that is her dog
+  char_a: dh-ae-t I-z h-3^ d-c-g
+  char_b: dh-ae-t I-z h-3^ d-c-g
+  match: |
+    dh-ae-t I-z h-3^ d-c-g
+    |  |  ||| ||| | || | |
+    dh-ae-t I-z h-3^ d-c-g
+
+
+- gloss_a: The sign says keep out
+  gloss_b: the sign says keep out
+  char_a: dh-4 s-@I-n s-E-z k-i-p @U-t
+  char_b: dh-4 s-@I-n s-E-z k-i-p @U-t
+  match: |
+    dh-4 s-@I-n s-E-z k-i-p @U-t
+    |  ||| |  ||| | ||| | |||  |
+    dh-4 s-@I-n s-E-z k-i-p @U-t
+
+
+- gloss_a: Say goodbye
+  gloss_b: say good-bye
+  char_a: s-eI g-U-d--b-@I
+  char_b: s-eI g-U-d  b-@I
+  match: |
+    s-eI g-U-d--b-@I
+    | | || | |  | |
+    s-eI g-U-d  b-@I
+
+
+- gloss_a: They are singing happy birthday
+  gloss_b: they're singing happy birthday
+  char_a: dh-eI @-r s-I-ng-I-ng h-ae-p-I b-3^-th-d-eI
+  char_b: dh-E----r s-I-ng-I-ng h-ae-p-I b-3^-th-d-eI
+  match: |
+    dh-eI @-r s-I-ng-I-ng h-ae-p-I b-3^-th-d-eI
+    |       ||| | |  | | || |  | ||| |  |  | |
+    dh-E----r s-I-ng-I-ng h-ae-p-I b-3^-th-d-eI
+
+
+- gloss_a: Water shoots from that gun
+  gloss_b: water shoots from that gun
+  char_a: w-@-t-4^ sh-u-t-s f-r-^-m dh-ae-t g-^-n
+  char_b: w-@-t-4^ sh-u-t-s f-r-^-m dh-ae-t g-^-n
+  match: |
+    w-@-t-4^ sh-u-t-s f-r-^-m dh-ae-t g-^-n
+    | | | | ||  | | ||| | | |||  |  ||| | |
+    w-@-t-4^ sh-u-t-s f-r-^-m dh-ae-t g-^-n
+
+
+- gloss_a: She chewed her fingers
+  gloss_b: she chewed her fingers
+  char_a: sh-i tsh-u-d h-3^ f-I-ng-g-4^-z
+  char_b: sh-i tsh-u-d h-3^ f-I-ng-g-4^-z
+  match: |
+    sh-i tsh-u-d h-3^ f-I-ng-g-4^-z
+    |  |||   | ||| | || | |  | |  |
+    sh-i tsh-u-d h-3^ f-I-ng-g-4^-z
+
+
+- gloss_a: Baby reached to get another chocolate cookie
+  gloss_b: baby reached to get another chocolate cookie
+  char_a: b-eI-b-i r-i-tsh-t t-u g-E-t 4-n-^-dh-4^ tsh-@-k-l-I-t k-U-k-i
+  char_b: b-eI-b-i r-i-tsh-t t-u g-E-t 4-n-^-dh-4^ tsh-@-k-l-I-t k-U-k-i
+  match: |
+    b-eI-b-i r-i-tsh-t t-u g-E-t 4-n-^-dh-4^ tsh-@-k-l-I-t k-U-k-i
+    | |  | ||| | |   ||| ||| | ||| | | |  | ||   | | | | ||| | | |
+    b-eI-b-i r-i-tsh-t t-u g-E-t 4-n-^-dh-4^ tsh-@-k-l-I-t k-U-k-i
+
+
+- gloss_a: Gather the toys
+  gloss_b: gather the toys
+  char_a: g-ae-dh-4^ dh-4 t-cI-z
+  char_b: g-ae-dh-4^ dh-4 t-cI-z
+  match: |
+    g-ae-dh-4^ dh-4 t-cI-z
+    | |  |  | ||  ||| |  |
+    g-ae-dh-4^ dh-4 t-cI-z
+
+
+- gloss_a: Pull his tooth
+  gloss_b: pull his tooth
+  char_a: p-U-l h-I-z t-u-th
+  char_b: p-U-l h-I-z t-u-th
+  match: |
+    p-U-l h-I-z t-u-th
+    | | ||| | ||| | |
+    p-U-l h-I-z t-u-th
+
+
+- gloss_a: Pour some tea from both of us
+  gloss_b: pour some tea for both of us
+  char_a: p-o-r s-^-m t-i f-r-^-m b-oU-th ^-v ^-s
+  char_b: p-o-r s-^-m t-i f---c-r b-oU-th ^-v ^-s
+  match: |
+    p-o-r s-^-m t-i f-r-^-m b-oU-th ^-v ^-s
+    | | ||| | ||| |||      || |  | || ||| |
+    p-o-r s-^-m t-i f---c-r b-oU-th ^-v ^-s
+
+
+- gloss_a: Big potato
+  gloss_b: big potato
+  char_a: b-I-g p-4-t-eI-t-o
+  char_b: b-I-g p-4-t-eI-t-o
+  match: |
+    b-I-g p-4-t-eI-t-o
+    | | ||| | | |  | |
+    b-I-g p-4-t-eI-t-o
+
+
+- gloss_a: Cut two small pieces
+  gloss_b: two small pieces
+  char_a: k-^-t t-u s-m-c-l p-i-s-I-z
+  char_b: ------t-u s-m-c-l p-i-s-I-z
+  match: |
+    k-^-t t-u s-m-c-l p-i-s-I-z
+      | ||| | | ||| | | | |
+    ------t-u s-m-c-l p-i-s-I-z
+
+
+- gloss_a: She is showing him how to jump
+  gloss_b: she is showing him how to jump
+  char_a: sh-i I-z sh-oU-I-ng-h-I-m h-@U t-u dzh-^-m-p
+  char_b: sh-i I-z sh-oU-I-ng-h-I-m h-@U t-u dzh-^-m-p
+  match: |
+    sh-i I-z sh-oU-I-ng-h-I-m h-@U t-u dzh-^-m-p
+    |  ||| |||  |  | |  | | ||| | || |||   | | |
+    sh-i I-z sh-oU-I-ng-h-I-m h-@U t-u dzh-^-m-p
+
+
+- gloss_a: His fingers are in wrong
+  gloss_b: his fingers are in wrong
+  char_a: h-I-z f-I-ng-g-4^-z @-r I-n r-c-ng
+  char_b: h-I-z f-I-ng-g-4^-z @-r I-n r-c-ng
+  match: |
+    h-I-z f-I-ng-g-4^-z @-r I-n r-c-ng
+    | | ||| | |  | |  ||| ||| ||| | |
+    h-I-z f-I-ng-g-4^-z @-r I-n r-c-ng
+
+
+- gloss_a: Tie up the garbage bag
+  gloss_b: tie up the garbage bag
+  char_a: t-@I ^-p dh-4 g-@-r-b-4-dzh-b-ae-g
+  char_b: t-@I ^-p dh-4 g-@-r-b-4-dzh-b-ae-g
+  match: |
+    t-@I ^-p dh-4 g-@-r-b-4-dzh-b-ae-g
+    | | || |||  ||| | | | | |   | |  |
+    t-@I ^-p dh-4 g-@-r-b-4-dzh-b-ae-g
+
+
+- gloss_a: Wear a cowboy hat
+  gloss_b: wear a cowboy hat
+  char_a: w-E-r 4 k-@U-b-cI h-ae-t
+  char_b: w-E-r 4 k-@U-b-cI h-ae-t
+  match: |
+    w-E-r 4 k-@U-b-cI h-ae-t
+    | | ||||| |  | | || |  |
+    w-E-r 4 k-@U-b-cI h-ae-t
+
+
+- gloss_a: She laughed at his funny jokes
+  gloss_b: she laughed at his funny jokes
+  char_a: sh-i l-ae-f-t ae-t h-I-z f-^-n-I dzh-oU-k-s
+  char_b: sh-i l-ae-f-t ae-t h-I-z f-^-n-I dzh-oU-k-s
+  match: |
+    sh-i l-ae-f-t ae-t h-I-z f-^-n-I dzh-oU-k-s
+    |  ||| |  | |||  ||| | ||| | | |||   |  | |
+    sh-i l-ae-f-t ae-t h-I-z f-^-n-I dzh-oU-k-s
+
+
+- gloss_a: Point to Teddy
+  gloss_b: pointed teddy
+  char_a: p-cI-n-t---  t-u t-E-d-I
+  char_b: p-cI-n-t-4-d ----t-E-d-I
+  match: |
+    p-cI-n-t---  t-u t-E-d-I
+    | |  | |    |    | | | |
+    p-cI-n-t-4-d ----t-E-d-I
+
+
+- gloss_a: Those eat those hotdogs soon
+  gloss_b: hot dogs
+  char_a: dh-oU-z i-t dh-oU-z h-@-t--d-c-g-z  s-u-n
+  char_b: --------------------h-@-t  d-c-g-z------
+  match: |
+    dh-oU-z i-t dh-oU-z h-@-t--d-c-g-z  s-u-n
+              | | |  | | | |
+    --------------------h-@-t  d-c-g-z------
+
+
+- gloss_a: Find the brown lid
+  gloss_b: brown lid
+  char_a: f-@I-n-d dh-4 b-r-@U-n l-I-d
+  char_b: --------------b-r-@U-n l-I-d
+  match: |
+    f-@I-n-d dh-4 b-r-@U-n l-I-d
+          | | |  ||| | |
+    --------------b-r-@U-n l-I-d
+
+
+- gloss_a: She got mad and pushed the boy
+  gloss_b: she got mad and pushed the boy
+  char_a: sh-i g-@-t m-ae-d ae-n-d-p-U-sh-t dh-4 b-cI
+  char_b: sh-i g-@-t m-ae-d ae-n-d-p-U-sh-t dh-4 b-cI
+  match: |
+    sh-i g-@-t m-ae-d ae-n-d-p-U-sh-t dh-4 b-cI
+    |  ||| | ||| |  |||  | | | | |  |||  ||| |
+    sh-i g-@-t m-ae-d ae-n-d-p-U-sh-t dh-4 b-cI
+
+
+- gloss_a: Be very quiet when baby is sleeping
+  gloss_b: be very quiet when baby is sleeping
+  char_a: b-i v-E-r-I k-w-@I-4-t w-E-n b-eI-b-i I-z s-l-i-p-l-ng
+  char_b: b-i v-E-r-I k-w-@I-4-t w-E-n b-eI-b-i I-z s-l-i-p-l-ng
+  match: |
+    b-i v-E-r-I k-w-@I-4-t w-E-n b-eI-b-i I-z s-l-i-p-l-ng
+    | ||| | | ||| | |  | ||| | ||| |  | ||| ||| | | | | |
+    b-i v-E-r-I k-w-@I-4-t w-E-n b-eI-b-i I-z s-l-i-p-l-ng
+
+
+- gloss_a: She could hide here
+  gloss_b: she can hide here
+  char_a: sh-i k-U--d h-@I-d h-i-r
+  char_b: sh-i k-ae-n h-@I-d h-i-r
+  match: |
+    sh-i k-U--d h-@I-d h-i-r
+    |  |||     || |  ||| | |
+    sh-i k-ae-n h-@I-d h-i-r
+
+
+- gloss_a: Take the lid off the pot
+  gloss_b: take the lid off the pot
+  char_a: t-eI-k dh-4 l-I-d c-f dh-4 p-@-t
+  char_b: t-eI-k dh-4 l-I-d c-f dh-4 p-@-t
+  match: |
+    t-eI-k dh-4 l-I-d c-f dh-4 p-@-t
+    | |  |||  ||| | ||| |||  ||| | |
+    t-eI-k dh-4 l-I-d c-f dh-4 p-@-t
+
+
+- gloss_a: Get them some coffee
+  gloss_b: get them some coffee
+  char_a: g-E-t dh-E-m s-^-m k-c-f-i
+  char_b: g-E-t dh-E-m s-^-m k-c-f-i
+  match: |
+    g-E-t dh-E-m s-^-m k-c-f-i
+    | | |||  | ||| | ||| | | |
+    g-E-t dh-E-m s-^-m k-c-f-i
+
+
+- gloss_a: Take his turn
+  gloss_b: takes his turns
+  char_a: t-eI-k-  h-I-z t-3^-n-
+  char_b: t-eI-k-s h-I-z t-3^-n-z
+  match: |
+    t-eI-k-  h-I-z t-3^-n-
+    | |  |  || | ||| |  |
+    t-eI-k-s h-I-z t-3^-n-z
+
+
+- gloss_a: Don't let go or it will fall
+  gloss_b: don't let go or it will fall
+  char_a: d-o-n-t l-E-t g-oU c-r I-t w-I-l f-c-l
+  char_b: d-o-n-t l-E-t g-oU c-r I-t w-I-l f-c-l
+  match: |
+    d-o-n-t l-E-t g-oU c-r I-t w-I-l f-c-l
+    | | | ||| | ||| | || ||| ||| | ||| | |
+    d-o-n-t l-E-t g-oU c-r I-t w-I-l f-c-l
+
+
+- gloss_a: Make a check behind the two
+  gloss_b: i can check behind the
+  char_a: m-eI-k --4--  tsh-E-k b-i-h-@I-n-d dh-4  t-u
+  char_b: --@I-  k-ae-n tsh-E-k b-i-h-@I-n-d dh-4----
+  match: |
+    m-eI-k --4--  tsh-E-k b-i-h-@I-n-d dh-4  t-u
+      |      ||   | ||| | | |  | |||  |
+    --@I-  k-ae-n tsh-E-k b-i-h-@I-n-d dh-4----
+
+
+- gloss_a: He wants somebody to push him
+  gloss_b: he wants to push him
+  char_a: h-i w-^-n-t-s s-^-m-b-^-d-i t-u p-U-sh h-I-m
+  char_b: h-i w-^-n-t-s --------------t-u p-U-sh h-I-m
+  match: |
+    h-i w-^-n-t-s s-^-m-b-^-d-i t-u p-U-sh h-I-m
+    | ||| | | | ||              | ||| | | || | |
+    h-i w-^-n-t-s --------------t-u p-U-sh h-I-m
+
+
+- gloss_a: They ate birthday cake and drank pop
+  gloss_b: they ate birthday cake and drink pop
+  char_a: dh-eI eI-t b-3^-th-d-eI k-eI-k ae-n-d-d-r-ae-ng-k p-@-p
+  char_b: dh-eI eI-t b-3^-th-d-eI k-eI-k ae-n-d-d-r-I--ng-k p-@-p
+  match: |
+    dh-eI eI-t b-3^-th-d-eI k-eI-k ae-n-d-d-r-ae-ng-k p-@-p
+    |  | ||  ||| |  |  | | || |  |||  | | | |    |  ||| | |
+    dh-eI eI-t b-3^-th-d-eI k-eI-k ae-n-d-d-r-I--ng-k p-@-p
+
+
+- gloss_a: Living room
+  gloss_b: living room
+  char_a: l-I-v-I-ng r-u-m
+  char_b: l-I-v-I-ng r-u-m
+  match: |
+    l-I-v-I-ng r-u-m
+    | | | | | || | |
+    l-I-v-I-ng r-u-m
+
+
+- gloss_a: Animal crackers
+  gloss_b: animal crackers
+  char_a: ae-n-I-m-4-l k-r-ae-k-4^-s
+  char_b: ae-n-I-m-4-l k-r-ae-k-4^-s
+  match: |
+    ae-n-I-m-4-l k-r-ae-k-4^-s
+    |  | | | | ||| | |  | |  |
+    ae-n-I-m-4-l k-r-ae-k-4^-s
+
+
+- gloss_a: The loud noise scared the scared the cat away
+  gloss_b: the loud noise scared the cat away
+  char_a: dh-4 l-@U-d n-cI-z s-k-E-4^-d-dh-4 s-k-E-4^-d-dh-4 k-ae-t 4-w-eI
+  char_b: dh-4 l-@U-d n-cI-z s-k-E-4^-d-dh-4 ----------------k-ae-t 4-w-eI
+  match: |
+    dh-4 l-@U-d n-cI-z s-k-E-4^-d-dh-4 s-k-E-4^-d-dh-4 k-ae-t 4-w-eI
+    |  ||| |  ||| |  ||| | | |  | |  ||                | |  ||| | |
+    dh-4 l-@U-d n-cI-z s-k-E-4^-d-dh-4 ----------------k-ae-t 4-w-eI
+
+
+- gloss_a: Five more cookies
+  gloss_b: five cookies
+  char_a: f-@I-v m-o-r k-U-k-i-z
+  char_b: f-@I-v ------k-U-k-i-z
+  match: |
+    f-@I-v m-o-r k-U-k-i-z
+    | |  ||      | | | | |
+    f-@I-v ------k-U-k-i-z
+
+
+- gloss_a: That baby is learning to talk
+  gloss_b: that baby is learning to
+  char_a: dh-ae-t b-eI-b-i I-z l-3^-n-I-ng t-u  t-c-k
+  char_b: dh-ae-t b-eI-b-i I-z l-3^-n-I-ng t-u------
+  match: |
+    dh-ae-t b-eI-b-i I-z l-3^-n-I-ng t-u  t-c-k
+    |  |  ||| |  | ||| ||| |  | | | || |
+    dh-ae-t b-eI-b-i I-z l-3^-n-I-ng t-u------
+
+
+- gloss_a: Make a birdhouse
+  gloss_b: make a birdhouse
+  char_a: m-eI-k 4 b-3^-d-h-@U-s
+  char_b: m-eI-k 4 b-3^-d-h-@U-s
+  match: |
+    m-eI-k 4 b-3^-d-h-@U-s
+    | |  ||||| |  | | |  |
+    m-eI-k 4 b-3^-d-h-@U-s
+
+
+- gloss_a: Baby sock
+  gloss_b: baby
+  char_a: b-eI-b-i  s-@-k
+  char_b: b-eI-b-i------
+  match: |
+    b-eI-b-i  s-@-k
+    | |  | |
+    b-eI-b-i------
+
+
+- gloss_a: Give some flowers some water
+  gloss_b: give some flowers some water
+  char_a: g-I-v s-^-m f-l-@U-4^-z s-^-m w-@-t-4^
+  char_b: g-I-v s-^-m f-l-@U-4^-z s-^-m w-@-t-4^
+  match: |
+    g-I-v s-^-m f-l-@U-4^-z s-^-m w-@-t-4^
+    | | ||| | ||| | |  |  ||| | ||| | | |
+    g-I-v s-^-m f-l-@U-4^-z s-^-m w-@-t-4^
+
+
+- gloss_a: This cheese doesn't smell good
+  gloss_b: cheese doesn't smell good
+  char_a: dh-I-s tsh-i-z d-^-z-n-t s-m-E-l g-U-d
+  char_b: -------tsh-i-z d-^-z-n-t s-m-E-l g-U-d
+  match: |
+    dh-I-s tsh-i-z d-^-z-n-t s-m-E-l g-U-d
+      |   | ||| | | | ||| | | ||| | |
+    -------tsh-i-z d-^-z-n-t s-m-E-l g-U-d
+
+
+- gloss_a: He winds up the toy ghost
+  gloss_b: he winds up the toy ghost
+  char_a: h-i w-@I-n-d-z ^-p dh-4 t-cI g-oU-s-t
+  char_b: h-i w-@I-n-d-z ^-p dh-4 t-cI g-oU-s-t
+  match: |
+    h-i w-@I-n-d-z ^-p dh-4 t-cI g-oU-s-t
+    | ||| |  | | ||| |||  ||| | || |  | |
+    h-i w-@I-n-d-z ^-p dh-4 t-cI g-oU-s-t
+
+
+- gloss_a: Open the house
+  gloss_b: open the house
+  char_a: oU-p-4-n dh-4 h-@U-s
+  char_b: oU-p-4-n dh-4 h-@U-s
+  match: |
+    oU-p-4-n dh-4 h-@U-s
+    |  | | |||  ||| |  |
+    oU-p-4-n dh-4 h-@U-s
+
+
+- gloss_a: He likes potato chips
+  gloss_b: he likes potato chips
+  char_a: h-i l-@I-k-s p-4-t-eI-t-o tsh-I-p-s
+  char_b: h-i l-@I-k-s p-4-t-eI-t-o tsh-I-p-s
+  match: |
+    h-i l-@I-k-s p-4-t-eI-t-o tsh-I-p-s
+    | ||| |  | ||| | | |  | |||   | | |
+    h-i l-@I-k-s p-4-t-eI-t-o tsh-I-p-s
+
+
+- gloss_a: Taste the cookies that she baked
+  gloss_b: cookies that she baked
+  char_a: t-eI-s-t dh-4 k-U-k-i-z dh-ae-t sh-i b-eI-k-t
+  char_b: --------------k-U-k-i-z dh-ae-t sh-i b-eI-k-t
+  match: |
+    t-eI-s-t dh-4 k-U-k-i-z dh-ae-t sh-i b-eI-k-t
+          | | | | |||  |  |||  ||| |  | |
+    --------------k-U-k-i-z dh-ae-t sh-i b-eI-k-t
+
+
+- gloss_a: Jump over the box
+  gloss_b: jump over the box
+  char_a: dzh-^-m-p oU-v-4^ dh-4 b-@-k-s
+  char_b: dzh-^-m-p oU-v-4^ dh-4 b-@-k-s
+  match: |
+    dzh-^-m-p oU-v-4^ dh-4 b-@-k-s
+    |   | | |||  | | ||  ||| | | |
+    dzh-^-m-p oU-v-4^ dh-4 b-@-k-s
+
+
+- gloss_a: Both faces are happy
+  gloss_b: both are happy
+  char_a: b-oU-th f-eI-s-4-z @-r h-ae-p-I
+  char_b: b-oU-th -----------@-r h-ae-p-I
+  match: |
+    b-oU-th f-eI-s-4-z @-r h-ae-p-I
+    | |  | |           | ||| |  | |
+    b-oU-th -----------@-r h-ae-p-I
+
+
+- gloss_a: Fill the fridge with things to eat
+  gloss_b: fill the fridge with things to eat
+  char_a: f-I-l dh-4 f-r-I-dzh w-I-th th-I-ng-z t-u i-t
+  char_b: f-I-l dh-4 f-r-I-dzh w-I-th th-I-ng-z t-u i-t
+  match: |
+    f-I-l dh-4 f-r-I-dzh w-I-th th-I-ng-z t-u i-t
+    | | |||  ||| | | |  || | | ||  | |  ||| ||| |
+    f-I-l dh-4 f-r-I-dzh w-I-th th-I-ng-z t-u i-t
+
+
+- gloss_a: Put these together
+  gloss_b: put these together
+  char_a: p-U-t dh-i-z t-u-g-E-dh-4^
+  char_b: p-U-t dh-i-z t-u-g-E-dh-4^
+  match: |
+    p-U-t dh-i-z t-u-g-E-dh-4^
+    | | |||  | ||| | | | |  |
+    p-U-t dh-i-z t-u-g-E-dh-4^
+
+
+- gloss_a: The cowboy hat has a feather
+  gloss_b: the cowboy hat has feather
+  char_a: dh-4 k-@U-b-cI h-ae-t h-ae-z 4 f-E-dh-4^
+  char_b: dh-4 k-@U-b-cI h-ae-t h-ae-z --f-E-dh-4^
+  match: |
+    dh-4 k-@U-b-cI h-ae-t h-ae-z 4 f-E-dh-4^
+    |  ||| |  | | || |  ||| |  ||  | | |  |
+    dh-4 k-@U-b-cI h-ae-t h-ae-z --f-E-dh-4^
+
+
+- gloss_a: Bird house
+  gloss_b: bird house
+  char_a: b-3^-d h-@U-s
+  char_b: b-3^-d h-@U-s
+  match: |
+    b-3^-d h-@U-s
+    | |  ||| |  |
+    b-3^-d h-@U-s
+
+
+- gloss_a: Cowboy boots
+  gloss_b: cowboy boots
+  char_a: k-@U-b-cI b-u-t-s
+  char_b: k-@U-b-cI b-u-t-s
+  match: |
+    k-@U-b-cI b-u-t-s
+    | |  | | || | | |
+    k-@U-b-cI b-u-t-s
+
+
+- gloss_a: There's a playground near the school
+  gloss_b: there's a playground near the school
+  char_a: dh-E-r-z 4 p-l-eI-g-r-@U-n-d n-i-r dh-4 s-k-u-l
+  char_b: dh-E-r-z 4 p-l-eI-g-r-@U-n-d n-i-r dh-4 s-k-u-l
+  match: |
+    dh-E-r-z 4 p-l-eI-g-r-@U-n-d n-i-r dh-4 s-k-u-l
+    |  | | ||||| | |  | | |  | ||| | |||  ||| | | |
+    dh-E-r-z 4 p-l-eI-g-r-@U-n-d n-i-r dh-4 s-k-u-l
+
+
+- gloss_a: Don't let go or it will fall
+  gloss_b: don't let go or it will fall
+  char_a: d-o-n-t l-E-t g-oU c-r I-t w-I-l f-c-l
+  char_b: d-o-n-t l-E-t g-oU c-r I-t w-I-l f-c-l
+  match: |
+    d-o-n-t l-E-t g-oU c-r I-t w-I-l f-c-l
+    | | | ||| | ||| | || ||| ||| | ||| | |
+    d-o-n-t l-E-t g-oU c-r I-t w-I-l f-c-l
+
+
+- gloss_a: Give some flowers some water
+  gloss_b: give some flowers some water
+  char_a: g-I-v s-^-m f-l-@U-4^-z s-^-m w-@-t-4^
+  char_b: g-I-v s-^-m f-l-@U-4^-z s-^-m w-@-t-4^
+  match: |
+    g-I-v s-^-m f-l-@U-4^-z s-^-m w-@-t-4^
+    | | ||| | ||| | |  |  ||| | ||| | | |
+    g-I-v s-^-m f-l-@U-4^-z s-^-m w-@-t-4^
+
+
+- gloss_a: That's not white
+  gloss_b: that's not right
+  char_a: dh-ae-t-s n-@-t w-@I-t
+  char_b: dh-ae-t-s n-@-t r-@I-t
+  match: |
+    dh-ae-t-s n-@-t w-@I-t
+    |  |  | ||| | ||  |  |
+    dh-ae-t-s n-@-t r-@I-t
+
+
+- gloss_a: Boy
+  gloss_b: boy
+  char_a: b-cI
+  char_b: b-cI
+  match: |
+    b-cI
+    | |
+    b-cI
+
+
+- gloss_a: Chew
+  gloss_b: chew
+  char_a: tsh-u
+  char_b: tsh-u
+  match: |
+    tsh-u
+    |   |
+    tsh-u
+
+
+- gloss_a: Bee
+  gloss_b: bee
+  char_a: b-i
+  char_b: b-i
+  match: |
+    b-i
+    | |
+    b-i
+
+
+- gloss_a: Ball
+  gloss_b: ball
+  char_a: b-c-l
+  char_b: b-c-l
+  match: |
+    b-c-l
+    | | |
+    b-c-l
+
+
+- gloss_a: Walk
+  gloss_b: walk
+  char_a: w-c-k
+  char_b: w-c-k
+  match: |
+    w-c-k
+    | | |
+    w-c-k
+
+
+- gloss_a: Yawn
+  gloss_b: yawn
+  char_a: j-c-n
+  char_b: j-c-n
+  match: |
+    j-c-n
+    | | |
+    j-c-n
+
+
+- gloss_a: Snow
+  gloss_b: snow
+  char_a: s-n-oU
+  char_b: s-n-oU
+  match: |
+    s-n-oU
+    | | |
+    s-n-oU
+
+
+- gloss_a: Beanie
+  gloss_b: beneath
+  char_a: b-i-n-i-
+  char_b: b-I-n-i-th
+  match: |
+    b-i-n-i-
+    |   | |
+    b-I-n-i-th
+
+
+- gloss_a: Boot
+  gloss_b: boot
+  char_a: b-u-t
+  char_b: b-u-t
+  match: |
+    b-u-t
+    | | |
+    b-u-t
+
+
+- gloss_a: Mud
+  gloss_b: mud
+  char_a: m-^-d
+  char_b: m-^-d
+  match: |
+    m-^-d
+    | | |
+    m-^-d
+
+
+- gloss_a: A Dress
+  gloss_b: address
+  char_a: 4   d-r-E-s
+  char_b: ae--d-r-E-s
+  match: |
+    4   d-r-E-s
+      | | | |
+    ae--d-r-E-s
+
+
+- gloss_a: Yawn
+  gloss_b: yawn
+  char_a: j-c-n
+  char_b: j-c-n
+  match: |
+    j-c-n
+    | | |
+    j-c-n
+
+
+- gloss_a: Lock
+  gloss_b: walk
+  char_a: l-@-k
+  char_b: w-c-k
+  match: |
+    l-@-k
+      |
+    w-c-k
+
+
+- gloss_a: No
+  gloss_b: no
+  char_a: n-oU
+  char_b: n-oU
+  match: |
+    n-oU
+    | |
+    n-oU
+
+
+- gloss_a: Bus
+  gloss_b: bus
+  char_a: b-^-s
+  char_b: b-^-s
+  match: |
+    b-^-s
+    | | |
+    b-^-s
+
+
+- gloss_a: Come
+  gloss_b: call
+  char_a: k-^-m
+  char_b: k-c-l
+  match: |
+    k-^-m
+    |
+    k-c-l
+
+
+- gloss_a: Zoo
+  gloss_b: zoo
+  char_a: z-u
+  char_b: z-u
+  match: |
+    z-u
+    | |
+    z-u
+
+
+- gloss_a: Hat
+  gloss_b: hat
+  char_a: h-ae-t
+  char_b: h-ae-t
+  match: |
+    h-ae-t
+    | |  |
+    h-ae-t
+
+
+- gloss_a: Dee
+  gloss_b: dee
+  char_a: d-i
+  char_b: d-i
+  match: |
+    d-i
+    | |
+    d-i
+
+
+- gloss_a: Full
+  gloss_b: full
+  char_a: f-U-l
+  char_b: f-U-l
+  match: |
+    f-U-l
+    | | |
+    f-U-l
+
+
+- gloss_a: Top
+  gloss_b: top
+  char_a: t-@-p
+  char_b: t-@-p
+  match: |
+    t-@-p
+    | | |
+    t-@-p
+
+
+- gloss_a: Rock
+  gloss_b: rock
+  char_a: r-@-k
+  char_b: r-@-k
+  match: |
+    r-@-k
+    | | |
+    r-@-k
+
+
+- gloss_a: Seat
+  gloss_b: seat
+  char_a: s-i-t
+  char_b: s-i-t
+  match: |
+    s-i-t
+    | | |
+    s-i-t
+
+
+- gloss_a: Bad
+  gloss_b: bad
+  char_a: b-ae-d
+  char_b: b-ae-d
+  match: |
+    b-ae-d
+    | |  |
+    b-ae-d
+
+
+- gloss_a: Buddy
+  gloss_b: buddy
+  char_a: b-^-d-I
+  char_b: b-^-d-I
+  match: |
+    b-^-d-I
+    | | | |
+    b-^-d-I
+
+
+- gloss_a: Gum
+  gloss_b: gum
+  char_a: g-^-m
+  char_b: g-^-m
+  match: |
+    g-^-m
+    | | |
+    g-^-m
+
+
+- gloss_a: Sheet
+  gloss_b: sheet
+  char_a: sh-i-t
+  char_b: sh-i-t
+  match: |
+    sh-i-t
+    |  | |
+    sh-i-t
+
+
+- gloss_a: Pan
+  gloss_b: pan
+  char_a: p-ae-n
+  char_b: p-ae-n
+  match: |
+    p-ae-n
+    | |  |
+    p-ae-n
+
+
+- gloss_a: Come
+  gloss_b: come
+  char_a: k-^-m
+  char_b: k-^-m
+  match: |
+    k-^-m
+    | | |
+    k-^-m
+
+
+- gloss_a: Sheet
+  gloss_b: sheet
+  char_a: sh-i-t
+  char_b: sh-i-t
+  match: |
+    sh-i-t
+    |  | |
+    sh-i-t
+
+
+- gloss_a: Hot
+  gloss_b: hot
+  char_a: h-@-t
+  char_b: h-@-t
+  match: |
+    h-@-t
+    | | |
+    h-@-t
+
+
+- gloss_a: Hoot
+  gloss_b: hoot
+  char_a: h-U-t
+  char_b: h-U-t
+  match: |
+    h-U-t
+    | | |
+    h-U-t
+
+
+- gloss_a: Boot
+  gloss_b: boot
+  char_a: b-u-t
+  char_b: b-u-t
+  match: |
+    b-u-t
+    | | |
+    b-u-t
+
+
+- gloss_a: A Dress
+  gloss_b: address
+  char_a: 4   d-r-E-s
+  char_b: ae--d-r-E-s
+  match: |
+    4   d-r-E-s
+      | | | |
+    ae--d-r-E-s
+
+
+- gloss_a: Eat
+  gloss_b: eat
+  char_a: i-t
+  char_b: i-t
+  match: |
+    i-t
+    | |
+    i-t
+
+
+- gloss_a: Bow
+  gloss_b: bow
+  char_a: b-oU
+  char_b: b-oU
+  match: |
+    b-oU
+    | |
+    b-oU
+
+
+- gloss_a: Jar
+  gloss_b: jar
+  char_a: dzh-@-r
+  char_b: dzh-@-r
+  match: |
+    dzh-@-r
+    |   | |
+    dzh-@-r
+
+
+- gloss_a: Bad
+  gloss_b: bad
+  char_a: b-ae-d
+  char_b: b-ae-d
+  match: |
+    b-ae-d
+    | |  |
+    b-ae-d
