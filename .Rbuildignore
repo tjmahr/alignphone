@@ -1,1 +1,4 @@
 ^README\.Rmd$
+^alignphone\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$

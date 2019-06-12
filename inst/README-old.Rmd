@@ -1,0 +1,377 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# alignphone
+
+The goal of alignphone is to ...
+
+## the problem
+
+We get two sequences of words segmented out into phonemes. The
+question is how to align these two sequences.
+
+```{r}
+x <- c(
+  # the bird landed behind the shaggy dog
+  "dh-4 b-3^-d l-ae-n-d-I-d b-i-h-@I-n-d dh-4 sh-ae-g-i d-c-g")
+y <- c(
+  # the bird landed behind shaky dog
+  "dh-4 b-3^-d l-ae-n-d-I-d b-i-h-@I-n-d sh-e-k-i d-c-g")
+```
+
+The `textreuse` library helps us here. It treats each phoneme as a word and
+tries align these words.
+
+```{r}
+library(textreuse)
+library(purrr)
+align_local(x, y)
+```
+
+But note that the nontext characters in "@I" and "3^" disappear. For that
+reason, it would be helpful to do a pass that replace punctuation-based fake IPA
+with word-character-based fake IPA. Let's make something to replace the nontext
+characters with IPA. We will eventually need to write something to
+comprehensively work in IPA.
+
+```{r}
+fix_ipa <- function(x) {
+  x %>%
+    stringr::str_replace_all("3\\^", "3r") %>%
+    stringr::str_replace_all("@I", "aI") %>% 
+    stringr::str_replace_all("@U", "aU") %>% 
+    stringr::str_replace_all("4\\^", "4\\r") %>% 
+    stringr::str_replace_all("@", "a") %>% 
+    stringr::str_replace_all(" \\^", " A") %>% 
+    stringr::str_replace_all("-\\^", "-A") 
+}
+  
+x <- fix_ipa(x)
+y <- fix_ipa(y)
+
+align_local(x, y)
+```
+
+One more thing we should is a function to print the alignments with bars like
+the original ShowAndTell program did.
+
+```{r}
+to_chars <- function(x) {
+  x %>% 
+    strsplit(" ") %>% 
+    unlist()
+}
+
+print_alignment <- function(alignment) {
+  matches <- to_chars(alignment$a_edits) == to_chars(alignment$b_edits)
+  lengths <- nchar(to_chars(alignment$a_edits))
+  aligners <- ifelse(matches, "|", " ")
+
+  marks <- list_along(aligners) %>%
+    map2(lengths, function(x, y) paste0(rep(" ", y), collapse = "")) %>%
+    map2(aligners, function(x, y) paste0(y, x)) %>%
+    unlist() %>%
+    paste0(collapse = "")
+
+  cat(alignment$a_edits, marks, alignment$b_edits, sep = "\n")
+  invisible(alignment)
+}
+
+align_local(x, y) %>% 
+  print_alignment()
+```
+
+This looks really good so far. This alignment procedure leaves some information
+on the table, however: There is no credit for partial matching. The algorithm
+gives n-points for a "sh" matching in shaggy/shaky, but the "g"/"k" is not
+arbitrary non-match. That should be worth some partial credit based on how the
+two only differ in one phonetic feature. But let's hold this thought.
+
+One thing that is missing is some treatment of spaces between words. We would
+like to use those when scoring alignments too. But let's hold this thought too.
+
+### the challenge example
+
+Our first priority is to fix the algorithm to handle the next example.
+
+```{r}
+x2 <- c(
+  # point to teddy
+  "p-cI-n-t t-u t-E-d-I")
+y2 <- c(
+  # point teddy
+  "p-cI-n-t t-E-d-I")
+
+align_local(x2, y2) %>% 
+  print_alignment()
+```
+
+The problem here is that "t" is assigned to "to" instead of "teddy" so that it
+seems like the child said "point t eddy". 
+
+One possibility is to insert word-spaces as explicit words that can be aligned,
+but that doesn't help.
+
+```{r}
+str_mark_space <- function(x, replace = "space") {
+  stringr::str_replace_all(x, " ", paste0(" ", replace, " "))
+}
+
+# doesn't help
+align_local(
+  str_mark_space(x2), 
+  str_mark_space(y2)) %>% 
+  print_alignment()
+
+Biostrings::pairwiseAlignment(str_mark_space(x2), str_mark_space(y2))
+```
+
+
+## bigramify
+
+I think that aligning phonemes might work easier if we do a first pass on
+bigrams. As a matter of good practice, let's write a general n-gramming
+function.
+
+```{r}
+str_tokenize <- function(x) {
+  stringr::str_split(x, " ")[[1]]
+}
+
+str_ngramify <- function(x, n) {
+  x %>% 
+    str_tokenize() %>% 
+    map_chr(str_ngramify_word, n) %>% 
+    stringr::str_flatten(" ")
+}
+
+str_ngramify_word <- function(word, n) {
+  dashes <- seq_len(stringr::str_count(word, "-"))
+  
+  for (dash_i in dashes) {
+    if (dash_i %% n == 1) {
+      word <- stringr::str_replace(word, "-", "x22x")
+    } else {
+      word <- stringr::str_replace(word, "-", "xskipx")
+    }
+  }
+  stringr::str_replace_all(word, "xskipx", "-")
+}
+
+
+# make_ngram_matches_words <- function(alignment) {
+#   a <- alignment$a_edits %>% str_tokenize()
+#   b <- alignment$b_edits %>% str_tokenize()
+#   edits <- a %>% seq_along()
+#   for (edit_i in edits) {
+#     if (a[edit_i] == b[edit_i]) {
+#       a[edit_i] <- str_ungramify(a[edit_i])
+#       b[edit_i] <- str_ungramify(b[edit_i])
+#     } else {
+#       a[edit_i] <- str_ungramify(a[edit_i], unjoin = "-")
+#       b[edit_i] <- str_ungramify(b[edit_i], unjoin = "-")
+#     }
+#   } 
+#   alignment$a_edits <- stringr::str_flatten(a, " ")
+#   alignment$b_edits <- stringr::str_flatten(b, " ")
+#   alignment
+# }
+
+make_bigram_matches_words <- function(alignment) {
+  # The trick here is to make a matching bigram into 4 matching words
+  str_ungramify2 <- function(x) {
+    x %>% 
+      stringr::str_replace_all(
+        "(\\w+)(x22x)(\\w+)", "startngram \\1-\\3 endngram")
+  }
+  
+  a <- alignment$a_edits %>% str_tokenize()
+  b <- alignment$b_edits %>% str_tokenize()
+  edits <- a %>% seq_along()
+  for (edit_i in edits) {
+    if (a[edit_i] == b[edit_i]) {
+      a[edit_i] <- str_ungramify2(a[edit_i])
+      b[edit_i] <- str_ungramify2(b[edit_i])
+    } else {
+      a[edit_i] <- str_ungramify(a[edit_i], unjoin = "-")
+      b[edit_i] <- str_ungramify(b[edit_i], unjoin = "-")
+    }
+  } 
+  
+  
+  alignment$a_edits <- stringr::str_flatten(a, " ")
+  alignment$b_edits <- stringr::str_flatten(b, " ")
+  alignment
+}
+
+remove_edit_marks <- function(alignment) {
+  clean_up <- . %>% 
+    stringr::str_remove_all("#+") %>% 
+    stringr::str_replace_all("[ ]+", " ")
+    
+  alignment$a_edits <- clean_up(alignment$a_edits)
+  alignment$b_edits <- clean_up(alignment$b_edits)
+  
+  alignment
+}
+
+
+str_ungramify <- function(x, join = "x22x", skip = "xskip", 
+                          unjoin = " ngram ", unskip = "-") {
+  x %>% 
+    stringr::str_replace_all(join, unjoin) %>% 
+    stringr::str_replace_all(skip, unskip)
+}
+
+realign <- function(alignment, match = 4L, ...) {
+  align_local(alignment$a_edits, alignment$b_edits, match = match, ...)
+}
+
+
+finalize_alignment <- function(alignment) {
+  clean_word <- function(x, y) {
+    x %>% 
+      stringr::str_replace("space", "_") %>% 
+      stringr::str_replace("startngram", "") %>%  
+      stringr::str_replace("endngram", "") %>%  
+      stringr::str_replace("ngram", "") 
+  }
+  
+  clean_pair <- function(x, y) {
+    x <- clean_word(x)
+    y <- clean_word(y)
+    if (stringr::str_detect(x, "#")) {
+      x <- stringr::str_flatten(rep("#", nchar(y)))
+      if (nchar(y) == 0) {
+        x <- ""
+      } 
+    } else if (stringr::str_detect(y, "#")) {
+      y <- stringr::str_flatten(rep("#", nchar(x)))
+      if (nchar(x) == 0) {
+        y <- ""
+      } 
+    }
+    list(x, y)
+  }
+  
+  a <- alignment$a_edits %>% str_tokenize()
+  b <- alignment$b_edits %>% str_tokenize()
+  
+  edits <- a %>% seq_along()
+  for (edit_i in edits) {
+    if (a[edit_i] == b[edit_i]) {
+      a[edit_i] <- clean_word(a[edit_i])
+      b[edit_i] <- clean_word(b[edit_i])
+    } else {
+      x <- a[edit_i]
+      y <- b[edit_i]
+      
+      a_b <- clean_pair(a[edit_i], b[edit_i])
+      a[edit_i] <- a_b[[1]]
+      b[edit_i] <- a_b[[2]]
+    }
+  } 
+  
+  a <- a[a != ""]
+  b <- b[b != ""]
+  alignment$a_edits <- stringr::str_flatten(a, " ")
+  alignment$b_edits <- stringr::str_flatten(b, " ")
+  alignment
+}
+
+
+```
+
+Let's run through the whole process.
+
+```{r}
+align_bigrams <- function(x, y, match = 4L, ...) {
+  x1 <- x %>% str_mark_space() %>% str_ngramify(2)
+  y1 <- y %>% str_mark_space() %>% str_ngramify(2)
+  
+  alignment <- align_local(x1, y1, match = 4L) 
+  
+  alignment %>% 
+    make_bigram_matches_words() %>% 
+    remove_edit_marks() %>% 
+    realign(match = 4L) %>% 
+    finalize_alignment()
+}
+```
+
+Back to the hard one...
+
+```{r}
+align_bigrams(x2, y2) %>% 
+  print_alignment()
+```
+
+
+## The next problem is IPA
+
+The following works interactively, but it doesn't work when I render this report.
+
+```{r}
+phone1 <- c("ð-ə b-ɜr-d")
+phone2 <- c("ð-ə b-ɜr-d")
+
+print(phone1)
+
+align_bigrams(phone1, phone2)
+```
+
+The output should be:
+
+```
+TextReuse alignment
+Alignment score: 40 
+Document A:
+ð ə _ b ɜr d
+
+Document B:
+ð ə _ b ɜr d
+```
+
+Note that the alignment scores are different.
+
+
+## More testing
+
+```{r, error=TRUE}
+tests <- yaml::read_yaml("align.yaml")
+
+for (test in tests) {
+  clean_input <- . %>% 
+    fix_ipa() %>% 
+    stringr::str_replace_all("-+", "-") %>% 
+    stringr::str_replace_all(" -", " ") %>% 
+    stringr::str_replace_all("- ", " ")
+  
+  x <- test$char_a %>% 
+    clean_input()
+  y <- test$char_b %>% 
+    clean_input()
+  
+  cat(test$gloss_a, "\n")
+  cat(test$char_a, "\n")
+  align_bigrams(x, y) %>% 
+    print_alignment()
+  cat(test$char_b, "\n")
+  cat(test$gloss_b, "\n")
+
+  cat("\n")
+
+}
+```
+
+Looks like I need to fix cases where many words are different...
