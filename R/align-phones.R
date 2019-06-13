@@ -86,8 +86,8 @@ align_grid_walk <- function(grid, fun_match = check, indel = -1) {
   # https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm
   while (i > 1 || j > 1) {
     this_check <- fun_match(grid_a[i], grid_b[j])
-    not_top_row <- i > 0
-    not_left_row <- j > 0
+    not_top_row <- i > 1
+    not_left_row <- j > 1
     not_corner <- not_top_row && not_left_row
 
     diagonal <-  not_corner && grid[i, j] == (grid[i - 1, j - 1] + this_check)
@@ -165,4 +165,196 @@ phone_match_partial <- function(x, y, match = 1, mismatch = -1) {
   result
 }
 
+#' @export
+phone_match_wiscbet_partial <- function(x, y, match = 1, mismatch = -1) {
+  consonants <- c(
+    "p", "m", "b",
+    "f", "v",
+    "th", "dh",
+    "t", "d", "n",
+    "s", "z",
+    "sh", "zh",
+    "tsh", "dzh",
+    "k", "g", "ng",
+    "h",
+    "r", "l",
+    "w",  "j"
+  )
 
+  # personally i think this vowel inventory is overspecified and some of the
+  # conventions are wrong, but these are the symbols used in our pronunciation
+  # dictionary
+  vowels <- c(
+    # i, ɪ, e, ɛ, æ
+    "i", "I", "e", "E", "ae",
+    # ɜ, ɜ˞, ə, ɚ, ʌ
+    "3", "3^", "4", "4^", "^",
+    # a, ɑ, ɒ
+    "a", "@", "D",
+    # u, ʊ, o, ɔ
+    "u", "U", "o", "c",
+    # ɑɪ, ɑʊ, eɪ, oʊ, ɔɪ
+    "@I", "@U", "eI", "oU", "cI"
+  )
+
+  gap <- "."
+  stopifnot(c(x, y) %in% c(gap, vowels, consonants, "-"))
+
+  c_x <- x %in% consonants
+  c_y <- y %in% consonants
+  v_x <- x %in% vowels
+  v_y <- y %in% vowels
+
+  if (x == y) {
+    result <- match
+  } else if (c_x && c_y) {
+    result <- .4 * mismatch
+  } else if (v_x && v_y) {
+    result <- .6 * mismatch
+  } else {
+    result <- mismatch
+  }
+  result
+}
+
+
+#' @export
+phone_match_wiscbet_aline <- function(x, y, match = 1, mismatch = -1) {
+  consonants <- c(
+    "p" = "p",
+    "m" = "m",
+    "b" = "b",
+    "f" = "f",
+    "v" = "v",
+    "th" = intToUtf8(952),
+    "dh" = intToUtf8(240),
+    "t" = "t",
+    "d" = "d",
+    "n" = "n",
+    "s" = "s",
+    "z" = "z",
+    "sh" = intToUtf8(643),
+    "zh" = intToUtf8(658),
+    "tsh" = intToUtf8(679),
+    "dzh" = intToUtf8(676),
+    "k" = "k",
+    "g" = "g",
+    "ng" = intToUtf8(331),
+    "h" = "h",
+    "r" = "r",
+    "l" = "l",
+    "w" = "w",
+    "j" = "j"
+  )
+
+  vowels <- c(
+    # i, ɪ, e, ɛ, æ
+    "i" = "i",
+    "I" = intToUtf8(618),
+    "e" = "e",
+    "E" = intToUtf8(603),
+    "ae" = intToUtf8(230),
+    # ɜ, ɜ˞, ə, ɚ, ʌ
+    "3" = intToUtf8(604),
+    # "3^" = intToUtf8(605),
+    "3^" = intToUtf8(605),
+    "4" = intToUtf8(601),
+    "4^" = intToUtf8(602),
+    "^" = intToUtf8(652),
+    # a, ɑ, ɒ
+    "a" = "a",
+    "@" = intToUtf8(593),
+    "D" = intToUtf8(594),
+    # u, ʊ, o, ɔ
+    "u" = "u",
+    "U" = intToUtf8(650),
+    "o" = "o",
+    "c" = intToUtf8(596),
+    # ɑɪ, ɑʊ, eɪ, oʊ, ɔɪ
+    "@I" = intToUtf8(c(593, 618)),
+    "@U" = intToUtf8(c(593, 650)),
+    "eI" = intToUtf8(c(101, 618)),
+    "oU" = intToUtf8(c(111, 650)),
+    "cI" = intToUtf8(c(596, 618))
+  )
+
+  sounds <- c(vowels, consonants)
+
+  m1 <- c(intToUtf8(602), intToUtf8(605))
+  m2 <- c("eCX", "eCX")
+
+  gap <- "."
+  stopifnot(c(x, y) %in% c(gap, names(sounds), "-"))
+
+  c_x <- x %in% names(sounds)
+  c_y <- y %in% names(sounds)
+
+  if (x == y) {
+    result <- match
+  } else if (c_x && c_y) {
+    x <- sounds[x]
+    y <- sounds[y]
+    dist <- alineR::aline(x, y, sim = FALSE, m1 = m1, m2 = m2)
+    result <- (1 - dist) * match
+  } else {
+    result <- mismatch
+  }
+  result
+}
+
+#' @export
+str_split_at_hyphens <- function(xs) {
+  x1 <- stringr::str_replace_all(xs, "-+", "-")
+  unlist(stringr::str_split(x1, "-"))
+}
+#
+# place_map <- c(
+#   "p" = "bilabial", "m" = "bilabial", "b" = "bilabial",
+#   "f" = "labiodental", "v" = "labiodental",
+#   "th" = "dental", "dh" = "dental",
+#   "t" = "alveolar", "d" = "alveolar", "n" = "alveolar",
+#   "s" = "alveolar", "z" = "alveolar",
+#   "sh" = "palatoalveolar", "zh" = "palatoalveolar",
+#   "tsh" = "palatoalveolar", "dzh" = "palatoalveolar",
+#   "k" = "velar", "g" = "velar", "ng" = "velar",
+#   "h" = "glottal",
+#   "r" = "retroflex", "l" = "alveolar",
+#   #average of labial and velar?
+#   "w" = "bilabial",
+#   "j" = "palatal"
+# )
+#
+#
+# place_points <- c(
+#   bilabial = 1,
+#   labiodental = .95,
+#   dental = .9,
+#   alveolar = .85,
+#   retroflex = .8,
+#   palatoalveolar = .75,
+#   palatal = .7,
+#   velar = .6,
+# # p_uvular = .5
+# # p_pharyngeal = .3
+#   glottal = .1,
+#   .max = .9
+# )
+#
+#
+#
+#
+#
+#
+# alineR::aline("p", "p", sim = TRUE)
+# alineR::aline(utf8::as_utf8(consonants), utf8::as_utf8(consonants), sim = TRUE)
+#
+#
+# alineR::show.map()
+#
+# # alineR::aline(vowels, vowels, sim = TRUE, m1 = m1, m2 = m2)
+# # alineR::aline(vowels, vowels, sim = TRUE, m1 = m1, m2 = m2)
+#
+#
+# alineR::aline(purrr::rep_along(consonants, "p"), consonants, sim = TRUE)
+# x<-c(intToUtf8(c(361,109,108,97,116,952)),intToUtf8(c(100,105,331,331,105,114,97)))
+# y<-c(intToUtf8(c(418,109,108,97,116,952)),intToUtf8(c(100,105,110,110,105,114,97)))
