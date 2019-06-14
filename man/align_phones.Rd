@@ -4,14 +4,17 @@
 \alias{align_phones}
 \title{Align two sequences of phonemes using global alignment}
 \usage{
-align_phones(a, b, fun_match = phone_match_exact, indel = -1)
+align_phones(a, b, fun_match = phone_match_exact, indel_create = -2,
+  indel_extend = -1)
 }
 \arguments{
 \item{a, b}{two sequences of phonemes to align}
 
 \item{fun_match}{function to compute the similarity scores for each phoneme}
 
-\item{indel}{score (penalty) to assign to an insertion or deletion (indel)}
+\item{indel_create}{score (penalty) for creating a gap}
+
+\item{indel_extend}{score (penalty) for extending a gap by one step}
 }
 \value{
 a list with information about the matching

@@ -3,12 +3,24 @@
 #'
 #' @param a,b two sequences of phonemes to align
 #' @param fun_match function to compute the similarity scores for each phoneme
-#' @param indel score (penalty) to assign to an insertion or deletion (indel)
+#' @param indel_create score (penalty) for creating a gap
+#' @param indel_extend score (penalty) for extending a gap by one step
 #' @return a list with information about the matching
 #' @export
-align_phones <- function(a, b, fun_match = phone_match_exact, indel = -1) {
-  grid <- align_grid_setup(a, b, fun_match = fun_match, indel = indel)
-  aligned <- align_grid_walk(grid, fun_match = fun_match, indel = indel)
+align_phones <- function(a, b, fun_match = phone_match_exact, indel_create = -2, indel_extend = -1) {
+  grids <- align_grid_setup(
+    a,
+    b,
+    fun_match = fun_match,
+    indel_create = indel_create,
+    indel_extend = indel_extend
+  )
+
+  aligned <- align_grid_trace(
+    grids$grid,
+    grids$grid_moves,
+    fun_match = fun_match
+  )
 
   # put the original strings at the front of the results
   results <- list(a = a, b = b)
@@ -50,30 +62,117 @@ print.phone_alignment <- function(x, ...) {
   invisible(x)
 }
 
-align_grid_setup <- function(a, b, fun_match = check, indel = -1) {
-  grid <- matrix(
+align_grid_setup <- function(a, b, fun_match = phone_match_exact,
+                             indel_create = -1, indel_extend = -1) {
+  grid_moves <- grid_edits <- grid <- matrix(
     nrow = 1 + length(a),
     ncol = 1 + length(b)
   )
 
-  # setup insertions
-  grid[1, ] <- seq(0, length.out = ncol(grid), by = -1)
-  grid[, 1] <- seq(0, length.out = nrow(grid), by = -1)
+  # set up initial insertions
+  grid[1, ] <- c(
+    0,
+    seq(indel_create, length.out = ncol(grid) - 1, by = indel_extend)
+  )
+  grid[, 1] <- c(
+    0,
+    seq(indel_create, length.out = nrow(grid) - 1, by = indel_extend)
+  )
   rownames(grid) <- c("", a)
   colnames(grid) <- c("", b)
+
+  grid_edits[1, ] <- c(".match", rep(".indel", ncol(grid) - 1))
+  grid_edits[, 1] <- c(".match", rep(".indel", nrow(grid) - 1))
+
+  grid_moves[1, ] <- c(".diag", rep(".right", ncol(grid) - 1))
+  grid_moves[, 1] <- c(".diag", rep(".down", nrow(grid) - 1))
 
   # value in each cell is either a match from the diagonal or an indel
   for (i in seq(2, nrow(grid))) {
     for (j in seq(2, ncol(grid))) {
-      .match  <- grid[i - 1, j - 1] + fun_match(c("", a)[i], c("", b)[j])
-      .delete <- grid[i - 1, j    ] + indel
-      .insert <- grid[i    , j - 1] + indel
-      grid[i, j] <- max(c(.match, .delete, .insert))
+      indel_penalty_down <- ifelse(
+        grid_edits[i - 1, j    ] == ".match",
+        indel_create,
+        indel_extend
+      )
+      indel_penalty_right <- ifelse(
+        grid_edits[i    , j - 1] == ".match",
+        indel_create,
+        indel_extend
+      )
+
+      outcomes <- c(
+        .match  = grid[i - 1, j - 1] + fun_match(c("", a)[i], c("", b)[j]),
+        .delete = grid[i - 1, j    ] + indel_penalty_down,
+        .insert = grid[i    , j - 1] + indel_penalty_right
+      )
+
+      grid[i, j] <- max(outcomes)
+
+      grid_edits[i, j] <- ifelse(
+        names(which.max(outcomes)) == ".match",
+        ".match",
+        ".indel"
+      )
+
+      grid_moves[i, j] <- c(".diag", ".down", ".right")[which.max(outcomes)]
     }
   }
-  grid
+
+  list(
+    grid = grid,
+    grid_edits = grid_edits,
+    grid_moves = grid_moves
+  )
 }
 
+align_grid_trace <- function(grid, grid_moves, fun_match) {
+  grid_a <- rownames(grid)
+  grid_b <- colnames(grid)
+  alignment_a <- character(0)
+  alignment_b <- character(0)
+  i <- length(grid_a)
+  j <- length(grid_b)
+
+  # https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm
+  while (i > 1 || j > 1) {
+    diagonal <- grid_moves[i, j] == ".diag"
+    down <- grid_moves[i, j] == ".down"
+
+    if (diagonal) {
+      alignment_a <- c(grid_a[i], alignment_a)
+      alignment_b <- c(grid_b[j], alignment_b)
+      i <- i - 1
+      j <- j - 1
+    } else if (down) {
+      alignment_a <- c(grid_a[i], alignment_a)
+      alignment_b <- c("-", alignment_b)
+      i <- i - 1
+    } else {
+      alignment_a <- c("-", alignment_a)
+      alignment_b <- c(grid_b[j], alignment_b)
+      j <- j - 1
+    }
+  }
+
+  scores <- purrr::map2_dbl(
+    alignment_a,
+    alignment_b,
+    fun_match
+  )
+
+  aligners <- rep(":", length(scores))
+  aligners <- ifelse(scores == fun_match("d", "d"), "|", aligners)
+  aligners <- ifelse(scores == fun_match("d", " "), " ", aligners)
+
+  list(
+    a_alignment = alignment_a,
+    b_alignment = alignment_b,
+    scores = scores,
+    aligners = aligners
+  )
+
+}
 
 align_grid_walk <- function(grid, fun_match = check, indel = -1) {
   grid_a <- rownames(grid)
@@ -166,7 +265,7 @@ phone_match_partial <- function(x, y, match = 1, mismatch = -1) {
 }
 
 #' @export
-phone_match_wiscbet_partial <- function(x, y, match = 1, mismatch = -1) {
+phone_match_partial <- function(x, y, match = 1, mismatch = -1) {
   consonants <- c(
     "p", "m", "b",
     "f", "v",
@@ -198,7 +297,7 @@ phone_match_wiscbet_partial <- function(x, y, match = 1, mismatch = -1) {
   )
 
   gap <- "."
-  stopifnot(c(x, y) %in% c(gap, vowels, consonants, "-"))
+  stopifnot(c(x, y) %in% c(gap, vowels, consonants, "-", " "))
 
   c_x <- x %in% consonants
   c_y <- y %in% consonants
@@ -219,7 +318,7 @@ phone_match_wiscbet_partial <- function(x, y, match = 1, mismatch = -1) {
 
 
 #' @export
-phone_match_wiscbet_aline <- function(x, y, match = 1, mismatch = -1) {
+phone_match_aline <- function(x, y, match = 1, mismatch = -1) {
   consonants <- c(
     "p" = "p",
     "m" = "m",
@@ -284,18 +383,39 @@ phone_match_wiscbet_aline <- function(x, y, match = 1, mismatch = -1) {
   m2 <- c("eCX", "eCX")
 
   gap <- "."
-  stopifnot(c(x, y) %in% c(gap, names(sounds), "-"))
+  stopifnot(c(x, y) %in% c(gap, names(sounds), "-", " "))
 
   c_x <- x %in% names(sounds)
   c_y <- y %in% names(sounds)
 
-  if (x == y) {
-    result <- match
-  } else if (c_x && c_y) {
+
+
+  # if (x == y) {
+  #   result <- match
+  # } else if (all(c(x, y) %in% c("-", " "))) {
+  #   result <- 0
+  # } else if (c_x && c_y) {
+  #   x <- sounds[x]
+  #   y <- sounds[y]
+  #   dist <- alineR::aline(x, y, sim = FALSE, m1 = m1, m2 = m2)
+  #   result <- (1 - dist) * match
+  # } else {
+  #   result <- mismatch
+  # }
+  # result
+
+  if (c_x && c_y) {
     x <- sounds[x]
     y <- sounds[y]
     dist <- alineR::aline(x, y, sim = FALSE, m1 = m1, m2 = m2)
     result <- (1 - dist) * match
+
+    if (x == y) {
+      result <- match
+    }
+
+  } else if (all(c(x, y) %in% c("-", " "))) {
+      result <- 0
   } else {
     result <- mismatch
   }
@@ -307,54 +427,12 @@ str_split_at_hyphens <- function(xs) {
   x1 <- stringr::str_replace_all(xs, "-+", "-")
   unlist(stringr::str_split(x1, "-"))
 }
-#
-# place_map <- c(
-#   "p" = "bilabial", "m" = "bilabial", "b" = "bilabial",
-#   "f" = "labiodental", "v" = "labiodental",
-#   "th" = "dental", "dh" = "dental",
-#   "t" = "alveolar", "d" = "alveolar", "n" = "alveolar",
-#   "s" = "alveolar", "z" = "alveolar",
-#   "sh" = "palatoalveolar", "zh" = "palatoalveolar",
-#   "tsh" = "palatoalveolar", "dzh" = "palatoalveolar",
-#   "k" = "velar", "g" = "velar", "ng" = "velar",
-#   "h" = "glottal",
-#   "r" = "retroflex", "l" = "alveolar",
-#   #average of labial and velar?
-#   "w" = "bilabial",
-#   "j" = "palatal"
-# )
-#
-#
-# place_points <- c(
-#   bilabial = 1,
-#   labiodental = .95,
-#   dental = .9,
-#   alveolar = .85,
-#   retroflex = .8,
-#   palatoalveolar = .75,
-#   palatal = .7,
-#   velar = .6,
-# # p_uvular = .5
-# # p_pharyngeal = .3
-#   glottal = .1,
-#   .max = .9
-# )
-#
-#
-#
-#
-#
-#
-# alineR::aline("p", "p", sim = TRUE)
-# alineR::aline(utf8::as_utf8(consonants), utf8::as_utf8(consonants), sim = TRUE)
-#
-#
-# alineR::show.map()
-#
-# # alineR::aline(vowels, vowels, sim = TRUE, m1 = m1, m2 = m2)
-# # alineR::aline(vowels, vowels, sim = TRUE, m1 = m1, m2 = m2)
-#
-#
-# alineR::aline(purrr::rep_along(consonants, "p"), consonants, sim = TRUE)
-# x<-c(intToUtf8(c(361,109,108,97,116,952)),intToUtf8(c(100,105,331,331,105,114,97)))
-# y<-c(intToUtf8(c(418,109,108,97,116,952)),intToUtf8(c(100,105,110,110,105,114,97)))
+
+#' @export
+clean_old_alignment_result <- function(xs) {
+  xs %>%
+    stringr::str_replace_all(" +", "- -") %>%
+    str_split_at_hyphens() %>%
+    stringr::str_subset("^$", negate = TRUE)
+}
+
