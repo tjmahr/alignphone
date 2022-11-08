@@ -192,3 +192,104 @@ r1
 #>                           | | |   | | | |        
 #> -  -  - - - - - -  -  - - h @ t   d c g z - - - -
 ```
+
+### the swift benchmark
+
+I really want this one to match `b`-`v` and `li`-`lI`, but I have to
+crank down the indel penalty for that to happen. Or I have to ignore
+word boundaries entirely.
+
+``` r
+align_phones(
+  # long list of ex lovers
+  c(
+    "l", "@", "ng", " ",
+    "l", "I", "s", "t", " ", 
+    "^", "v", " ",
+    "E", "k", "s", " ", 
+    "l", "^", "v", "4^", "z"
+  ),
+  # lonely starbucks lovers
+  c(
+    "l", "oU", "n", "l", "i", " ",
+    "s", "t", "@", "r", "b", "^", "k", "s", " ",
+    "l", "^", "v", "4^", "z"
+  ),
+  phone_match_partial
+) |> 
+  print() |> 
+  as.data.frame()
+#> l @  ng   l I s t   ^ v   E k s   l ^ v 4^ z
+#> | :  :        | |   : :   : | | | | | | |  |
+#> l oU n  l i   s t - @ r b ^ k s   l ^ v 4^ z
+#>     a  b scores
+#> 1   l  l    1.0
+#> 2   @ oU   -0.6
+#> 3  ng  n   -0.2
+#> 4      l   -1.0
+#> 5   l  i   -1.0
+#> 6   I      -1.0
+#> 7   s  s    1.0
+#> 8   t  t    1.0
+#> 9      -   -1.0
+#> 10  ^  @   -0.6
+#> 11  v  r   -0.4
+#> 12     b   -1.0
+#> 13  E  ^   -0.6
+#> 14  k  k    1.0
+#> 15  s  s    1.0
+#> 16          1.0
+#> 17  l  l    1.0
+#> 18  ^  ^    1.0
+#> 19  v  v    1.0
+#> 20 4^ 4^    1.0
+#> 21  z  z    1.0
+
+align_phones(
+  # long list of ex lovers
+  c(
+    "l", "@", "ng", " ",
+    "l", "I", "s", "t", " ", 
+    "^", "v", " ",
+    "E", "k", "s", " ", 
+    "l", "^", "v", "4^", "z"
+  ),
+  # lonely starbucks lovers
+  c(
+    "l", "oU", "n", "l", "i", " ",
+    "s", "t", "@", "r", "b", "^", "k", "s", " ",
+    "l", "^", "v", "4^", "z"
+  ),
+  phone_match_partial, 
+  indel_create = -.5
+) |> 
+  print() |> 
+  as.data.frame()
+#> l @  ng   l I - s t   ^ - v   E k s   l ^ v 4^ z
+#> | :  :    | :   | |   :   :   : | | | | | | |  |
+#> l oU n  - l i   s t - @ r b - ^ k s   l ^ v 4^ z
+#>     a  b scores
+#> 1   l  l    1.0
+#> 2   @ oU   -0.6
+#> 3  ng  n   -0.2
+#> 4      -   -1.0
+#> 5   l  l    1.0
+#> 6   I  i   -0.2
+#> 7   -      -1.0
+#> 8   s  s    1.0
+#> 9   t  t    1.0
+#> 10     -   -1.0
+#> 11  ^  @   -0.6
+#> 12  -  r   -1.0
+#> 13  v  b   -0.2
+#> 14     -   -1.0
+#> 15  E  ^   -0.6
+#> 16  k  k    1.0
+#> 17  s  s    1.0
+#> 18          1.0
+#> 19  l  l    1.0
+#> 20  ^  ^    1.0
+#> 21  v  v    1.0
+#> 22 4^ 4^    1.0
+#> 23  z  z    1.0
+```

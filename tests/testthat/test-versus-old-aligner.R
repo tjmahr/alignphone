@@ -9,7 +9,7 @@ test_that("multiplication works", {
   r <- align_phones(
     those_eat_those_hotdogs_soon,
     hot_dogs,
-    phone_match_aline
+    phone_match_partial
   )
 
   expect_equal(

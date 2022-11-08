@@ -305,15 +305,9 @@ phone_match_partial <- function(x, y, match = 1, mismatch = -1) {
   gap <- "."
   stopifnot(c(x, y) %in% c(gap, vowels, consonants, "-", " "))
 
-  friendly_pairs <- list(
-    c("d", "t"),
-    c("b", "p"),
-    c("g", "k"),
-    c("s", "z"),
-    c("s", "sh")
-  )
 
-  is_friendly <- list(sort(c(x, y))) %in% friendly_pairs
+  is_friendly <- list(sort(c(x, y))) %in% friendly_pairs()
+  both_gap <- all(c(x, y) %in% c(gap, "-", " "))
   c_x <- x %in% consonants
   c_y <- y %in% consonants
   v_x <- x %in% vowels
@@ -321,6 +315,8 @@ phone_match_partial <- function(x, y, match = 1, mismatch = -1) {
 
   if (x == y) {
     result <- match
+  # } else if (both_gap) {
+    # result <- 0
   } else if (is_friendly) {
     result <- .2 * mismatch
   } else if (c_x && c_y) {
@@ -331,6 +327,32 @@ phone_match_partial <- function(x, y, match = 1, mismatch = -1) {
     result <- mismatch
   }
   result
+}
+
+friendly_pairs <- function() {
+  l <- list(
+    # voicing
+    c("t", "d"),
+    c("p", "b"),
+    c("k", "g"),
+    c("s", "z"),
+    c("sh", "zh"),
+    c("tsh", "dzh"),
+    # place
+    c("p", "f"),
+    c("b", "v"),
+    c("f", "th"),
+    c("s", "sh"),
+    c("n", "ng"),
+    # tense lax
+    c("i", "I"),
+    c("u", "U"),
+    c("eI", "E"),
+    c("^", "4"),
+    c("3^", "4^")
+  )
+
+  lapply(l, sort)
 }
 
 

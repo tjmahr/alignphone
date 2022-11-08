@@ -144,3 +144,52 @@ r1 <- align_phones(those_eat_those_hotdogs_soon, hot_dogs, phone_match_partial)
 r1
 ```
 
+### the swift benchmark
+
+I really want this one to match `b`-`v` and `li`-`lI`, but I have to crank down
+the indel penalty for that to happen. Or I have to ignore word boundaries
+entirely.
+
+```{r}
+align_phones(
+  # long list of ex lovers
+  c(
+    "l", "@", "ng", " ",
+    "l", "I", "s", "t", " ", 
+    "^", "v", " ",
+    "E", "k", "s", " ", 
+    "l", "^", "v", "4^", "z"
+  ),
+  # lonely starbucks lovers
+  c(
+    "l", "oU", "n", "l", "i", " ",
+    "s", "t", "@", "r", "b", "^", "k", "s", " ",
+    "l", "^", "v", "4^", "z"
+  ),
+  phone_match_partial
+) |> 
+  print() |> 
+  as.data.frame()
+
+align_phones(
+  # long list of ex lovers
+  c(
+    "l", "@", "ng", " ",
+    "l", "I", "s", "t", " ", 
+    "^", "v", " ",
+    "E", "k", "s", " ", 
+    "l", "^", "v", "4^", "z"
+  ),
+  # lonely starbucks lovers
+  c(
+    "l", "oU", "n", "l", "i", " ",
+    "s", "t", "@", "r", "b", "^", "k", "s", " ",
+    "l", "^", "v", "4^", "z"
+  ),
+  phone_match_partial, 
+  indel_create = -.5
+) |> 
+  print() |> 
+  as.data.frame()
+```
+
