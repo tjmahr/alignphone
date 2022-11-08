@@ -32,35 +32,34 @@ align_phones <- function(a, b, fun_match = phone_match_exact, indel_create = -2,
 
 #' @export
 print.phone_alignment <- function(x, ...) {
+  writeLines(format(x))
+  invisible(x)
+}
+
+#' @export
+format.phone_alignment <- function(x, ...) {
   matches <- x$scores
   lengths1 <- nchar(x$a_alignment)
   lengths2 <- nchar(x$b_alignment)
   lengths <- pmax(lengths1, lengths2)
 
-  pad_top <- x$a_alignment %>%
-    purrr::map2_chr(
-      lengths - lengths1,
-      function(x, y) paste0(rep(" ", y), collapse = "")
-    ) %>%
-    paste0(x$a_alignment, ., collapse = " ")
+  pad_top <- x$a_alignment |>
+    stringr::str_pad(lengths, side = "right") |>
+    paste0(collapse = " ")
 
-  pad_bot <- x$b_alignment %>%
-    purrr::map2_chr(
-      lengths - lengths2,
-      function(x, y) paste0(rep(" ", y), collapse = "")
-    ) %>%
-    paste0(x$b_alignment, ., collapse = " ")
+  pad_bottom <- x$b_alignment |>
+    stringr::str_pad(lengths, side = "right") |>
+    paste0(collapse = " ")
 
-  marks <- purrr::list_along(x$aligners) %>%
-    purrr::map2(lengths, function(x, y) paste0(rep(" ", y), collapse = "")) %>%
-    purrr::map2(x$aligners, function(x, y) paste0(y, x)) %>%
-    unlist() %>%
-    paste0(collapse = "")
+  marks <- x$aligners |>
+    stringr::str_pad(lengths, side = "right") |>
+    paste0(collapse = " ")
 
-
-  cat(pad_top, marks, pad_bot, sep = "\n")
-  invisible(x)
+  paste(pad_top, marks, pad_bottom, sep = "\n")
 }
+
+
+
 
 align_grid_setup <- function(a, b, fun_match = phone_match_exact,
                              indel_create = -1, indel_extend = -1) {
