@@ -64,14 +64,15 @@ ab1$scores
 ```
 
 A custom comparison function can be used for alignment. This package provides
-`phone_match_partial()` which assigns partial credit based similar
-phonetic features. Partial matches appear in the alignment as `:`.
+`phone_match_partial()` which assigns partial credit based similar phonetic
+features. Partial matches appear in the alignment as `:`. The `as.data.frame()`
+method for the alignment shows the alignment with scores.
 
 ```{r}
 ab2 <- align_phones(a, b, fun_match = phone_match_partial)
 ab2
 
-ab2$scores
+as.data.frame(ab2)
 ```
 
 
@@ -94,20 +95,33 @@ a <- c("b", "eI", "b", "i", "s", "@", "k")
 b <- c("w", "i", "r", "E", "s", "t", "@", "k")
 ab2 <- align_phones(a, b, phone_match_partial)
 ab2
-ab2$scores
+as.data.frame(ab2)
 ```
 
-Here /s/ is matched with [s] and no sounds were deleted.
+Here /s/ is matched with [s] and no sounds besides /t/ were deleted.
 
 
 ## More tests
+
+### pretty-buddy
+
+This is an important benchmark. Given "pretty" for *buddy*, what sound
+should align at the /b/"? The default approach pairs [b] and [r]. A partial
+credit scheme that assigns -.6 to mismatched vowels and -.4 to mismatched
+consonants will pair [b] and [r]. Our partial credit function assigns -.2 to
+mismatches that are very similar. In this case, it aligns [b] and [p].
 
 ```{r}
 buddy <- str_split_at_hyphens("b-^-d-i")
 pretty <- str_split_at_hyphens("p-r-I-t-i")
 
-align_phones(buddy, pretty)
-align_phones(buddy, pretty, phone_match_partial)
+align_phones(buddy, pretty) |> 
+  print() |> 
+  as.data.frame()
+
+align_phones(buddy, pretty, phone_match_partial) |> 
+  print() |> 
+  as.data.frame()
 ```
 
 ```{r}

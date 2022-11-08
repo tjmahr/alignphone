@@ -58,7 +58,14 @@ format.phone_alignment <- function(x, ...) {
   paste(pad_top, marks, pad_bottom, sep = "\n")
 }
 
-
+#' @export
+as.data.frame.phone_alignment <- function(x, ...) {
+  data.frame(
+    a = x[["a_alignment"]],
+    b = x[["b_alignment"]],
+    scores = x[["scores"]]
+  )
+}
 
 
 align_grid_setup <- function(a, b, fun_match = phone_match_exact,
@@ -230,7 +237,7 @@ phone_match_exact <- function(x, y, match = 1, mismatch = -1) {
   if (x == y) match else mismatch
 }
 
-#' @export
+
 xxxphone_match_partial <- function(x, y, match = 1, mismatch = -1) {
   consonants <- c(
     "p", "m", "b",
@@ -298,6 +305,15 @@ phone_match_partial <- function(x, y, match = 1, mismatch = -1) {
   gap <- "."
   stopifnot(c(x, y) %in% c(gap, vowels, consonants, "-", " "))
 
+  friendly_pairs <- list(
+    c("d", "t"),
+    c("b", "p"),
+    c("g", "k"),
+    c("s", "z"),
+    c("s", "sh")
+  )
+
+  is_friendly <- list(sort(c(x, y))) %in% friendly_pairs
   c_x <- x %in% consonants
   c_y <- y %in% consonants
   v_x <- x %in% vowels
@@ -305,6 +321,8 @@ phone_match_partial <- function(x, y, match = 1, mismatch = -1) {
 
   if (x == y) {
     result <- match
+  } else if (is_friendly) {
+    result <- .2 * mismatch
   } else if (c_x && c_y) {
     result <- .4 * mismatch
   } else if (v_x && v_y) {
@@ -314,6 +332,8 @@ phone_match_partial <- function(x, y, match = 1, mismatch = -1) {
   }
   result
 }
+
+
 
 
 #' @export

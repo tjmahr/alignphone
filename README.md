@@ -59,7 +59,8 @@ ab1$scores
 A custom comparison function can be used for alignment. This package
 provides `phone_match_partial()` which assigns partial credit based
 similar phonetic features. Partial matches appear in the alignment as
-`:`.
+`:`. The `as.data.frame()` method for the alignment shows the alignment
+with scores.
 
 ``` r
 ab2 <- align_phones(a, b, fun_match = phone_match_partial)
@@ -68,9 +69,27 @@ ab2
 #> |  |           | | |  | : :  |   | | |  |
 #> dh 4 - - - - - . b cI . w E  n t . h oU m
 
-ab2$scores
-#>  [1]  1.0  1.0 -1.0 -1.0 -1.0 -1.0 -1.0  1.0  1.0  1.0  1.0 -0.4 -0.6  1.0 -1.0
-#> [16]  1.0  1.0  1.0  1.0
+as.data.frame(ab2)
+#>     a  b scores
+#> 1  dh dh    1.0
+#> 2   4  4    1.0
+#> 3   .  -   -1.0
+#> 4   l  -   -1.0
+#> 5   I  -   -1.0
+#> 6   t  -   -1.0
+#> 7   l  -   -1.0
+#> 8   .  .    1.0
+#> 9   b  b    1.0
+#> 10 cI cI    1.0
+#> 11  .  .    1.0
+#> 12  r  w   -0.4
+#> 13 ae  E   -0.6
+#> 14  n  n    1.0
+#> 15  -  t   -1.0
+#> 16  .  .    1.0
+#> 17  h  h    1.0
+#> 18 oU oU    1.0
+#> 19  m  m    1.0
 ```
 
 Our current (non-R) alignment program aligns “baby sock” (child) and “we
@@ -93,26 +112,60 @@ ab2
 #> b eI b i s - @ k
 #> : :  : : |   | |
 #> w i  r E s t @ k
-ab2$scores
-#> [1] -0.4 -0.6 -0.4 -0.6  1.0 -1.0  1.0  1.0
+as.data.frame(ab2)
+#>    a b scores
+#> 1  b w   -0.4
+#> 2 eI i   -0.6
+#> 3  b r   -0.4
+#> 4  i E   -0.6
+#> 5  s s    1.0
+#> 6  - t   -1.0
+#> 7  @ @    1.0
+#> 8  k k    1.0
 ```
 
-Here /s/ is matched with \[s\] and no sounds were deleted.
+Here /s/ is matched with \[s\] and no sounds besides /t/ were deleted.
 
 ## More tests
+
+### pretty-buddy
+
+This is an important benchmark. Given “pretty” for *buddy*, what sound
+should align at the /b/“? The default approach pairs \[b\] and \[r\]. A
+partial credit scheme that assigns -.6 to mismatched vowels and -.4 to
+mismatched consonants will pair \[b\] and \[r\]. Our partial credit
+function assigns -.2 to mismatches that are very similar. In this case,
+it aligns \[b\] and \[p\].
 
 ``` r
 buddy <- str_split_at_hyphens("b-^-d-i")
 pretty <- str_split_at_hyphens("p-r-I-t-i")
 
-align_phones(buddy, pretty)
+align_phones(buddy, pretty) |> 
+  print() |> 
+  as.data.frame()
 #> - b ^ d i
 #>         |
 #> p r I t i
-align_phones(buddy, pretty, phone_match_partial)
-#> - b ^ d i
-#>   : : : |
+#>   a b scores
+#> 1 - p     -1
+#> 2 b r     -1
+#> 3 ^ I     -1
+#> 4 d t     -1
+#> 5 i i      1
+
+align_phones(buddy, pretty, phone_match_partial) |> 
+  print() |> 
+  as.data.frame()
+#> b - ^ d i
+#> :   : : |
 #> p r I t i
+#>   a b scores
+#> 1 b p   -0.2
+#> 2 - r   -1.0
+#> 3 ^ I   -0.6
+#> 4 d t   -0.2
+#> 5 i i    1.0
 ```
 
 ``` r
