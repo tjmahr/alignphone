@@ -231,7 +231,7 @@ phone_match_exact <- function(x, y, match = 1, mismatch = -1) {
 }
 
 #' @export
-phone_match_partial <- function(x, y, match = 1, mismatch = -1) {
+xxxphone_match_partial <- function(x, y, match = 1, mismatch = -1) {
   consonants <- c(
     "p", "m", "b",
     "t", "d", "n",
@@ -318,107 +318,110 @@ phone_match_partial <- function(x, y, match = 1, mismatch = -1) {
 
 #' @export
 phone_match_aline <- function(x, y, match = 1, mismatch = -1) {
-  consonants <- c(
-    "p" = "p",
-    "m" = "m",
-    "b" = "b",
-    "f" = "f",
-    "v" = "v",
-    "th" = intToUtf8(952),
-    "dh" = intToUtf8(240),
-    "t" = "t",
-    "d" = "d",
-    "n" = "n",
-    "s" = "s",
-    "z" = "z",
-    "sh" = intToUtf8(643),
-    "zh" = intToUtf8(658),
-    "tsh" = intToUtf8(679),
-    "dzh" = intToUtf8(676),
-    "k" = "k",
-    "g" = "g",
-    "ng" = intToUtf8(331),
-    "h" = "h",
-    "r" = "r",
-    "l" = "l",
-    "w" = "w",
-    "j" = "j"
-  )
-
-  vowels <- c(
-    # i, ɪ, e, ɛ, æ
-    "i" = "i",
-    "I" = intToUtf8(618),
-    "e" = "e",
-    "E" = intToUtf8(603),
-    "ae" = intToUtf8(230),
-    # ɜ, ɜ˞, ə, ɚ, ʌ
-    "3" = intToUtf8(604),
-    # "3^" = intToUtf8(605),
-    "3^" = intToUtf8(605),
-    "4" = intToUtf8(601),
-    "4^" = intToUtf8(602),
-    "^" = intToUtf8(652),
-    # a, ɑ, ɒ
-    "a" = "a",
-    "@" = intToUtf8(593),
-    "D" = intToUtf8(594),
-    # u, ʊ, o, ɔ
-    "u" = "u",
-    "U" = intToUtf8(650),
-    "o" = "o",
-    "c" = intToUtf8(596),
-    # ɑɪ, ɑʊ, eɪ, oʊ, ɔɪ
-    "@I" = intToUtf8(c(593, 618)),
-    "@U" = intToUtf8(c(593, 650)),
-    "eI" = intToUtf8(c(101, 618)),
-    "oU" = intToUtf8(c(111, 650)),
-    "cI" = intToUtf8(c(596, 618))
-  )
-
-  sounds <- c(vowels, consonants)
-
-  m1 <- c(intToUtf8(602), intToUtf8(605))
-  m2 <- c("eCX", "eCX")
-
-  gap <- "."
-  stopifnot(c(x, y) %in% c(gap, names(sounds), "-", " "))
-
-  c_x <- x %in% names(sounds)
-  c_y <- y %in% names(sounds)
-
-
-
-  # if (x == y) {
-  #   result <- match
-  # } else if (all(c(x, y) %in% c("-", " "))) {
-  #   result <- 0
-  # } else if (c_x && c_y) {
-  #   x <- sounds[x]
-  #   y <- sounds[y]
-  #   dist <- alineR::aline(x, y, sim = FALSE, m1 = m1, m2 = m2)
-  #   result <- (1 - dist) * match
-  # } else {
-  #   result <- mismatch
-  # }
-  # result
-
-  if (c_x && c_y) {
-    x <- sounds[x]
-    y <- sounds[y]
-    dist <- alineR::aline(x, y, sim = FALSE, m1 = m1, m2 = m2)
-    result <- (1 - dist) * match
-
-    if (x == y) {
-      result <- match
-    }
-
-  } else if (all(c(x, y) %in% c("-", " "))) {
-      result <- 0
+  if (!requireNamespace("alineR", quietly = TRUE)) {
+    warning("alineR is not installed. Using phone_match_partial()")
+    phone_match_partial(x, y, match, mismatch)
   } else {
-    result <- mismatch
+    consonants <- c(
+      "p" = "p",
+      "m" = "m",
+      "b" = "b",
+      "f" = "f",
+      "v" = "v",
+      "th" = intToUtf8(952),
+      "dh" = intToUtf8(240),
+      "t" = "t",
+      "d" = "d",
+      "n" = "n",
+      "s" = "s",
+      "z" = "z",
+      "sh" = intToUtf8(643),
+      "zh" = intToUtf8(658),
+      "tsh" = intToUtf8(679),
+      "dzh" = intToUtf8(676),
+      "k" = "k",
+      "g" = "g",
+      "ng" = intToUtf8(331),
+      "h" = "h",
+      "r" = "r",
+      "l" = "l",
+      "w" = "w",
+      "j" = "j"
+    )
+
+    vowels <- c(
+      # i, ɪ, e, ɛ, æ
+      "i" = "i",
+      "I" = intToUtf8(618),
+      "e" = "e",
+      "E" = intToUtf8(603),
+      "ae" = intToUtf8(230),
+      # ɜ, ɜ˞, ə, ɚ, ʌ
+      "3" = intToUtf8(604),
+      # "3^" = intToUtf8(605),
+      "3^" = intToUtf8(605),
+      "4" = intToUtf8(601),
+      "4^" = intToUtf8(602),
+      "^" = intToUtf8(652),
+      # a, ɑ, ɒ
+      "a" = "a",
+      "@" = intToUtf8(593),
+      "D" = intToUtf8(594),
+      # u, ʊ, o, ɔ
+      "u" = "u",
+      "U" = intToUtf8(650),
+      "o" = "o",
+      "c" = intToUtf8(596),
+      # ɑɪ, ɑʊ, eɪ, oʊ, ɔɪ
+      "@I" = intToUtf8(c(593, 618)),
+      "@U" = intToUtf8(c(593, 650)),
+      "eI" = intToUtf8(c(101, 618)),
+      "oU" = intToUtf8(c(111, 650)),
+      "cI" = intToUtf8(c(596, 618))
+    )
+
+    sounds <- c(vowels, consonants)
+
+    m1 <- c(intToUtf8(602), intToUtf8(605))
+    m2 <- c("eCX", "eCX")
+
+    gap <- "."
+    stopifnot(c(x, y) %in% c(gap, names(sounds), "-", " "))
+
+    c_x <- x %in% names(sounds)
+    c_y <- y %in% names(sounds)
+
+    # if (x == y) {
+    #   result <- match
+    # } else if (all(c(x, y) %in% c("-", " "))) {
+    #   result <- 0
+    # } else if (c_x && c_y) {
+    #   x <- sounds[x]
+    #   y <- sounds[y]
+    #   dist <- alineR::aline(x, y, sim = FALSE, m1 = m1, m2 = m2)
+    #   result <- (1 - dist) * match
+    # } else {
+    #   result <- mismatch
+    # }
+    # result
+
+    if (c_x && c_y) {
+      x <- sounds[x]
+      y <- sounds[y]
+      dist <- alineR::aline(x, y, sim = FALSE, m1 = m1, m2 = m2)
+      result <- (1 - dist) * match
+
+      if (x == y) {
+        result <- match
+      }
+
+    } else if (all(c(x, y) %in% c("-", " "))) {
+      result <- 0
+    } else {
+      result <- mismatch
+    }
+    result
   }
-  result
 }
 
 #' @export
