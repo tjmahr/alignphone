@@ -4,8 +4,13 @@
 \alias{align_phones}
 \title{Align two sequences of phonemes using global alignment}
 \usage{
-align_phones(a, b, fun_match = phone_match_exact, indel_create = -2,
-  indel_extend = -1)
+align_phones(
+  a,
+  b,
+  fun_match = phone_match_exact,
+  indel_create = -2,
+  indel_extend = -1
+)
 }
 \arguments{
 \item{a, b}{two sequences of phonemes to align}

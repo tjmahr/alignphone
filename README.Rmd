@@ -68,13 +68,14 @@ A custom comparison function can be used for alignment. This package provides
 phonetic features. Partial matches appear in the alignment as `:`.
 
 ```{r}
-ab2 <- align_phones(a, b, fun_match = phone_match_aline)
+ab2 <- align_phones(a, b, fun_match = phone_match_partial)
 ab2
 
 ab2$scores
 ```
 
-Our current alignment program aligns "baby sock" (child) and "we restock"
+
+Our current (non-R) alignment program aligns "baby sock" (child) and "we restock"
 (listener) as:
 
 ```
@@ -83,18 +84,15 @@ b-eI-b-i s-------@-k
 w------i r-E-s-t-@-k
 ```
 
-This says that the listener heard deletions of "eI" and "b" and a sustitution of
+This says that the listener heard deletions of "eI" and "b" and a substitution of
 [r] for /s/.
 
-But my implementation here yields a better alignment.
+But the partial-credit implementation here yields a better alignment.
 
 ```{r}
 a <- c("b", "eI", "b", "i", "s", "@", "k")
 b <- c("w", "i", "r", "E", "s", "t", "@", "k")
 ab2 <- align_phones(a, b, phone_match_partial)
-ab2
-
-ab2 <- align_phones(a, b, phone_match_aline)
 ab2
 ab2$scores
 ```
@@ -105,7 +103,6 @@ Here /s/ is matched with [s] and no sounds were deleted.
 ## More tests
 
 ```{r}
-phone_match_aline <- phone_match_aline
 buddy <- str_split_at_hyphens("b-^-d-i")
 pretty <- str_split_at_hyphens("p-r-I-t-i")
 
@@ -131,22 +128,5 @@ hot_dogs <- clean_old_alignment_result(
 
 r1 <- align_phones(those_eat_those_hotdogs_soon, hot_dogs, phone_match_partial)
 r1
-
-r2 <- align_phones(those_eat_those_hotdogs_soon, hot_dogs,   phone_match_aline)
-r2
-
-
-purrr::map2_dbl(
-  r1$a_alignment,
-  r1$b_alignment,  
-  phone_match_aline
-) %>% sum()
-
-purrr::map2_dbl(
-  r2$a_alignment,
-  r2$b_alignment,  
-  phone_match_aline
-) %>% sum()
-
 ```
 
