@@ -36,28 +36,29 @@ This is a basic example which shows you how to solve a common problem:
 library(alignphone)
 
 # the little boy ran home
-a <- c(
+a <- wiscbet_to_ipa(c(
   "dh", "4", ".", 
   "l", "I", "t", "l", ".", 
   "b", "cI", ".", 
   "r", "ae", "n", ".",  
   "h", "oU", "m"
-)
+))
 
 # the boy went home
-b <- c(
+b <- wiscbet_to_ipa(c(
   "dh", "4", ".", 
   "b", "cI", ".", 
   "w", "E", "n", "t", ".", 
   "h", "oU", "m"
-)
+))
 ```
 
 By default, the alignment only rewards exact matches. These appear in the
 alignment as `|`.
 
 ```{r}
-ab1 <- align_phones(a, b)
+ab1 <- align_phones(a, b) |> 
+  set_utterance_labels("the little boy ran home", "the boy went home")
 ab1
 
 ab1$scores
@@ -91,8 +92,8 @@ This says that the listener heard deletions of "eI" and "b" and a substitution o
 But the partial-credit implementation here yields a better alignment.
 
 ```{r}
-a <- c("b", "eI", "b", "i", "s", "@", "k")
-b <- c("w", "i", "r", "E", "s", "t", "@", "k")
+a <- wiscbet_to_ipa("b", "eI", "b", "i", "s", "@", "k")
+b <- wiscbet_to_ipa("w", "i", "r", "I", "s", "t", "@", "k")
 ab2 <- align_phones(a, b, phone_match_partial)
 ab2
 as.data.frame(ab2)
@@ -112,8 +113,8 @@ consonants will pair [b] and [r]. Our partial credit function assigns -.2 to
 mismatches that are very similar. In this case, it aligns [b] and [p].
 
 ```{r}
-buddy <- str_split_at_hyphens("b-^-d-i")
-pretty <- str_split_at_hyphens("p-r-I-t-i")
+buddy <- str_split_at_hyphens("b-^-d-i") |> wiscbet_to_ipa()
+pretty <- str_split_at_hyphens("p-r-I-t-i") |> wiscbet_to_ipa()
 
 align_phones(buddy, pretty) |> 
   print() |> 
@@ -125,8 +126,10 @@ align_phones(buddy, pretty, phone_match_partial) |>
 ```
 
 ```{r}
-point_to_teddy <- clean_old_alignment_result("p-cI-n-t t-u t-E-d-i")
-point_teddy <- clean_old_alignment_result("p-cI-n-t ----t-E-d-i")
+point_to_teddy <- clean_old_alignment_result("p-cI-n-t t-u t-E-d-i") |> 
+  wiscbet_to_ipa()
+point_teddy <- clean_old_alignment_result("p-cI-n-t ----t-E-d-i") |> 
+  wiscbet_to_ipa()
 
 align_phones(point_to_teddy, point_teddy, phone_match_partial)
 ```
@@ -135,10 +138,10 @@ align_phones(point_to_teddy, point_teddy, phone_match_partial)
 ```{r}
 those_eat_those_hotdogs_soon <- clean_old_alignment_result(
   "dh-oU-z i-t dh-oU-z h-@-t--d-c-g-z  s-u-n"
-) 
+) |> wiscbet_to_ipa()
 hot_dogs <- clean_old_alignment_result(
   "--------------------h-@-t  d-c-g-z------"
-)
+) |> wiscbet_to_ipa()
 
 r1 <- align_phones(those_eat_those_hotdogs_soon, hot_dogs, phone_match_partial)
 r1
@@ -151,45 +154,31 @@ the indel penalty for that to happen. Or I have to ignore word boundaries
 entirely.
 
 ```{r}
-align_phones(
+x <- align_phones(
   # long list of ex lovers
-  c(
-    "l", "@", "ng", " ",
-    "l", "I", "s", "t", " ", 
-    "^", "v", " ",
-    "E", "k", "s", " ", 
+  wiscbet_to_ipa(
+    "l", "@", "ng",
+    "l", "I", "s", "t", 
+    "^", "v", 
+    "E", "k", "s", 
     "l", "^", "v", "4^", "z"
   ),
   # lonely starbucks lovers
-  c(
-    "l", "oU", "n", "l", "i", " ",
-    "s", "t", "@", "r", "b", "^", "k", "s", " ",
+  wiscbet_to_ipa(
+    "l", "oU", "n", "l", "i", 
+    "s", "t", "@", "r", "b", "^", "k", "s", 
     "l", "^", "v", "4^", "z"
   ),
   phone_match_partial
 ) |> 
+  set_utterance_labels(
+    "long list of ex-lovers",
+    "lonely starbucks lovers"
+  ) |> 
   print() |> 
   as.data.frame()
 
-align_phones(
-  # long list of ex lovers
-  c(
-    "l", "@", "ng", " ",
-    "l", "I", "s", "t", " ", 
-    "^", "v", " ",
-    "E", "k", "s", " ", 
-    "l", "^", "v", "4^", "z"
-  ),
-  # lonely starbucks lovers
-  c(
-    "l", "oU", "n", "l", "i", " ",
-    "s", "t", "@", "r", "b", "^", "k", "s", " ",
-    "l", "^", "v", "4^", "z"
-  ),
-  phone_match_partial, 
-  indel_create = -.5
-) |> 
-  print() |> 
-  as.data.frame()
+
+
 ```
 

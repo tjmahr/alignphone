@@ -1,13 +1,32 @@
 
 #' Align two sequences of phonemes using global alignment
 #'
+#' The algorithm used here is based on the [Needleman-Wunsch
+#' algorithm](https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm).
+#'
 #' @param a,b two sequences of phonemes to align
 #' @param fun_match function to compute the similarity scores for each phoneme
-#' @param indel_create score (penalty) for creating a gap
-#' @param indel_extend score (penalty) for extending a gap by one step
-#' @return a list with information about the matching
+#' @param indel_create penalty for creating a gap
+#' @param indel_extend penalty for extending a gap by one step
+#' @return a list with the class `phone_alignment` with information about the
+#' matching
 #' @export
-align_phones <- function(a, b, fun_match = phone_match_exact, indel_create = -2, indel_extend = -1) {
+#' @examples
+#' # Kiss the sky and kiss this guy
+#' a <- c("k", "I", "s", "dh", "4", "s", "k", "@I") |> wiscbet_to_ipa()
+#' b <- c("k", "I", "s", "dh", "I", "s", "g", "@I") |> wiscbet_to_ipa()
+#' align_phones(a, b)
+align_phones <- function(
+    a,
+    b,
+    fun_match = phone_match_exact,
+    indel_create = -2,
+    indel_extend = -1
+) {
+
+  # The global alignment problem follows two steps. Filling the matrix with
+  # scores and tracing back through it to find the best score. Each of those
+  # has their own function.
   grids <- align_grid_setup(
     a,
     b,
@@ -29,6 +48,12 @@ align_phones <- function(a, b, fun_match = phone_match_exact, indel_create = -2,
   structure(results, class = c("phone_alignment", "list"))
 }
 
+#' @export
+set_utterance_labels <- function(x, a = NULL, b = NULL) {
+  x$a_label <- a
+  x$b_label <- b
+  x
+}
 
 #' @export
 print.phone_alignment <- function(x, ...) {
@@ -55,6 +80,13 @@ format.phone_alignment <- function(x, ...) {
     stringr::str_pad(lengths, side = "right") |>
     paste0(collapse = " ")
 
+  if (!is.null(x$a_label)) {
+    pad_top <- paste(x$a_label, pad_top, sep = "\n")
+  }
+  if (!is.null(x$b_label)) {
+    pad_bottom <- paste(pad_bottom, x$b_label, sep = "\n")
+  }
+
   paste(pad_top, marks, pad_bottom, sep = "\n")
 }
 
@@ -68,14 +100,27 @@ as.data.frame.phone_alignment <- function(x, ...) {
 }
 
 
-align_grid_setup <- function(a, b, fun_match = phone_match_exact,
-                             indel_create = -1, indel_extend = -1) {
+align_grid_setup <- function(
+    a,
+    b,
+    fun_match = phone_match_exact,
+    indel_create = -2,
+    indel_extend = -1
+) {
+
+  # We keep track of the scores (grid), matching types (grid_edits), and the
+  # direction of the winning match (grid_moves)
   grid_moves <- grid_edits <- grid <- matrix(
     nrow = 1 + length(a),
     ncol = 1 + length(b)
   )
 
-  # set up initial insertions
+  # The top left corner is an aligned pair of blanks with score 0.
+  rownames(grid) <- c("", a)
+  colnames(grid) <- c("", b)
+
+  # Walking down the first row or first column will create a gap and then extend
+  # it on each step.
   grid[1, ] <- c(
     0,
     seq(indel_create, length.out = ncol(grid) - 1, by = indel_extend)
@@ -84,8 +129,6 @@ align_grid_setup <- function(a, b, fun_match = phone_match_exact,
     0,
     seq(indel_create, length.out = nrow(grid) - 1, by = indel_extend)
   )
-  rownames(grid) <- c("", a)
-  colnames(grid) <- c("", b)
 
   grid_edits[1, ] <- c(".match", rep(".indel", ncol(grid) - 1))
   grid_edits[, 1] <- c(".match", rep(".indel", nrow(grid) - 1))
@@ -93,14 +136,20 @@ align_grid_setup <- function(a, b, fun_match = phone_match_exact,
   grid_moves[1, ] <- c(".diag", rep(".right", ncol(grid) - 1))
   grid_moves[, 1] <- c(".diag", rep(".down", nrow(grid) - 1))
 
-  # value in each cell is either a match from the diagonal or an indel
+  # The value in each cell is either a match from the diagonal or an indel.
   for (i in seq(2, nrow(grid))) {
     for (j in seq(2, ncol(grid))) {
+
+      # (i-1, j-1) |    (i-1, j)
+      # (i  , j-1) | ME (i,   j)
+
+      # If the square above me is a match, then I am creating a gap.
       indel_penalty_down <- ifelse(
         grid_edits[i - 1, j    ] == ".match",
         indel_create,
         indel_extend
       )
+      # If the square left of me is a match, then I am creating a gap.
       indel_penalty_right <- ifelse(
         grid_edits[i    , j - 1] == ".match",
         indel_create,
@@ -131,6 +180,8 @@ align_grid_setup <- function(a, b, fun_match = phone_match_exact,
     grid_moves = grid_moves
   )
 }
+
+
 
 align_grid_trace <- function(grid, grid_moves, fun_match) {
   grid_a <- rownames(grid)
@@ -273,39 +324,18 @@ xxxphone_match_partial <- function(x, y, match = 1, mismatch = -1) {
 #' @export
 phone_match_partial <- function(x, y, match = 1, mismatch = -1) {
   consonants <- c(
-    "p", "m", "b",
-    "f", "v",
-    "th", "dh",
-    "t", "d", "n",
-    "s", "z",
-    "sh", "zh",
-    "tsh", "dzh",
-    "k", "g", "ng",
-    "h",
-    "r", "l",
-    "w",  "j"
+    "p", "m", "b", "f", "v", "θ", "ð", "t", "d", "n", "s", "z",
+    "ʃ", "ʒ", "tʃ", "dʒ", "k", "g", "ŋ", "h", "r", "l", "w", "j"
   )
-
-  # personally i think this vowel inventory is overspecified and some of the
-  # conventions are wrong, but these are the symbols used in our pronunciation
-  # dictionary
   vowels <- c(
-    # i, ɪ, e, ɛ, æ
-    "i", "I", "e", "E", "ae",
-    # ɜ, ɜ˞, ə, ɚ, ʌ
-    "3", "3^", "4", "4^", "^",
-    # a, ɑ, ɒ
-    "a", "@", "D",
-    # u, ʊ, o, ɔ
-    "u", "U", "o", "c",
-    # ɑɪ, ɑʊ, eɪ, oʊ, ɔɪ
-    "@I", "@U", "eI", "oU", "cI"
+    "i", "ɪ", "ɛ", "æ", "ɜ˞", "ə", "ɚ", "ʌ",
+    "ɑ", "u", "ʊ", "ɔ", "aɪ", "aʊ", "e", "o", "ɔɪ"
   )
 
   gap <- "."
   stopifnot(c(x, y) %in% c(gap, vowels, consonants, "-", " "))
 
-
+  is_disguise <- list(sort(c(x, y))) %in% disguise_pairs()
   is_friendly <- list(sort(c(x, y))) %in% friendly_pairs()
   both_gap <- all(c(x, y) %in% c(gap, "-", " "))
   c_x <- x %in% consonants
@@ -315,8 +345,8 @@ phone_match_partial <- function(x, y, match = 1, mismatch = -1) {
 
   if (x == y) {
     result <- match
-  # } else if (both_gap) {
-    # result <- 0
+  } else if (is_disguise) {
+    result <- match
   } else if (is_friendly) {
     result <- .2 * mismatch
   } else if (c_x && c_y) {
@@ -329,27 +359,39 @@ phone_match_partial <- function(x, y, match = 1, mismatch = -1) {
   result
 }
 
+# treat these pairs as the same sound in disguise but transcribed differently due
+# conventions.
+disguise_pairs <- function() {
+  l <- list(
+    c("ʌ", "ə"),
+    c("ɚ", "ɝ")
+  )
+  lapply(l, sort)
+}
+
+# similar sounds
 friendly_pairs <- function() {
   l <- list(
-    # voicing
-    c("t", "d"),
+    # change in voice
     c("p", "b"),
+    c("t", "d"),
     c("k", "g"),
+    c("f", "v"),
+    c("tʃ", "dʒ"),
+    c("θ", "ð"),
     c("s", "z"),
-    c("sh", "zh"),
-    c("tsh", "dzh"),
-    # place
+    c("ʃ", "ʒ"),
+    # change in place
+    c("f", "θ"),
+    c("s", "ʃ"),
+    c("n", "ŋ"),
+    # change in manner
     c("p", "f"),
     c("b", "v"),
-    c("f", "th"),
-    c("s", "sh"),
-    c("n", "ng"),
-    # tense lax
-    c("i", "I"),
-    c("u", "U"),
-    c("eI", "E"),
-    c("^", "4"),
-    c("3^", "4^")
+    # tense-lax pairs
+    c("i", "ɪ"),
+    c("u", "ʊ"),
+    c("e", "ɛ")
   )
 
   lapply(l, sort)

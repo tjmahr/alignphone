@@ -17,13 +17,20 @@ align_phones(
 
 \item{fun_match}{function to compute the similarity scores for each phoneme}
 
-\item{indel_create}{score (penalty) for creating a gap}
+\item{indel_create}{penalty for creating a gap}
 
-\item{indel_extend}{score (penalty) for extending a gap by one step}
+\item{indel_extend}{penalty for extending a gap by one step}
 }
 \value{
-a list with information about the matching
+a list with the class \code{phone_alignment} with information about the
+matching
 }
 \description{
-Align two sequences of phonemes using global alignment
+The algorithm used here is based on the \href{https://en.wikipedia.org/wiki/Needleman\%E2\%80\%93Wunsch_algorithm}{Needleman-Wunsch algorithm}.
+}
+\examples{
+# Kiss the sky and kiss this guy
+a <- c("k", "I", "s", "dh", "4", "s", "k", "@I") |> wiscbet_to_ipa()
+b <- c("k", "I", "s", "dh", "I", "s", "g", "@I") |> wiscbet_to_ipa()
+align_phones(a, b)
 }
