@@ -2,36 +2,36 @@
 wiscbet_to_ipa <- function(...) {
   xs <- c(...)
   rules <- c(
-    "i" = "i",  # beat
-    "I" = "ɪ",  # bit
-    "eI" = "e", # bait
-    "E" = "ɛ",  # bet
-    "ae" = "æ", # bat
-    "^" = "ʌ",  # but
-    "3^" = "ɝ", # Bert
-    "4" = "ə",  # comma: unstressed, neutral vowel
-    "4^" = "ɚ", # letter: unstressed, neutral r-colored vowel
-    "@" = "ɑ",  # bot
-    "oU" = "o", # boat
-    "c" = "ɔ",  # bought
-    "u" = "u",  # boot
-    "U" = "ʊ",  # book
-    # "3" = "ɜ",  # [unclear]
-    # "a" = "a",  # [unclear]
-    # "D" = "ɒ",  # [unclear]
-    "@I" = "aɪ", # bite
-    "@U" = "aʊ", # bout
-    "cI"= "ɔɪ",  # boyd
+    "i"  = "i",       # beat
+    "I"  = "\u026a",  # bit
+    "eI" = "e",       # bait
+    "E"  = "\u025b",  # bet
+    "ae" = "\u00e6",  # bat
+    "^"  = "\u028c",  # but
+    "3^" = "\u025d",  # Bert
+    "4"  = "\u0259",  # comma: unstressed, neutral vowel
+    "4^" = "\u025a",  # letter: unstressed, neutral r-colored vowel
+    "@"  = "\u0251",  # bot
+    "oU" = "o",       # boat
+    "c"  = "\u0254",  # bought
+    "u"  = "u",       # boot
+    "U"  = "\u028a",  # book
+  # "3"  = "\u025c",  # [unclear]
+  # "a"  = "a",       # [unclear]
+  # "D"  = "\u0252",  # [unclear]
+    "@I" = "a\u026a", # bite
+    "@U" = "a\u028a", # bout
+    "cI" = "\u0254\u026a",  # boyd
 
     "p" = "p", "b" = "b", "m" = "m",
     "t" = "t", "d" = "d", "n" = "n",
-    "k" = "k", "g" = "g", "ng"= "ŋ",
-    "tsh" = "tʃ", "dzh" = "dʒ", # cheap, jeep
+    "k" = "k", "g" = "g", "ng"= "\u014b",
+    "tsh" = "t\u0283", "dzh" = "d\u0292", # cheap, jeep
 
     "f"  = "f", "v"  = "v",
-    "th" = "θ", "dh" = "ð", # mouth, mouthe
+    "th" = "\u03b8", "dh" = "\u00f0", # mouth, mouthe
     "s"  = "s", "z"  = "z",
-    "sh" = "ʃ", "zh" = "ʒ", # bash, beige
+    "sh" = "\u0283", "zh" = "\u0292", # bash, beige
     "h" = "h",
 
     "j" = "j", "w" = "w",

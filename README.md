@@ -171,6 +171,10 @@ align_phones(buddy, pretty, phone_match_partial) |>
 #> 5 i i    1.0
 ```
 
+### Deleted words
+
+This is okay.
+
 ``` r
 point_to_teddy <- clean_old_alignment_result("p-cI-n-t t-u t-E-d-i") |> 
   wiscbet_to_ipa()
@@ -183,9 +187,12 @@ align_phones(point_to_teddy, point_teddy, phone_match_partial)
 #> p ɔɪ n t   - - - t ɛ d i
 ```
 
+This treats *hotdogs* and *hot dogs* as a mismatch on the space. It
+shouldn’t.
+
 ``` r
 those_eat_those_hotdogs_soon <- clean_old_alignment_result(
-  "dh-oU-z i-t dh-oU-z h-@-t--d-c-g-z  s-u-n"
+  "dh-oU-z i-t dh-oU-z h-@-t-d-c-g-z s-u-n"
 ) |> wiscbet_to_ipa()
 hot_dogs <- clean_old_alignment_result(
   "--------------------h-@-t  d-c-g-z------"
@@ -198,11 +205,30 @@ r1
 #> - - - - - - - - - - - h ɑ t   d ɔ g z - - - -
 ```
 
+``` r
+he_wants_somebody_to_push_him <- clean_old_alignment_result(
+  "h-i w-^-n-t-s s-^-m-b-^-d-i t-u p-U-sh h-I-m"
+) |> wiscbet_to_ipa()
+he_wants_to_push_him <- clean_old_alignment_result(
+  "h-i w-^-n-t-s --------------t-u p-U-sh h-I-m"
+) |> wiscbet_to_ipa()
+
+r1 <- align_phones(
+  he_wants_somebody_to_push_him, 
+  he_wants_to_push_him, 
+  phone_match_partial
+)
+r1
+#> h i   w ʌ n t s   s ʌ m b ʌ d i   t u   p ʊ ʃ   h ɪ m
+#> | | | | | | | | |                 | | | | | | | | | |
+#> h i   w ʌ n t s   - - - - - - - - t u   p ʊ ʃ   h ɪ m
+```
+
 ### the swift benchmark
 
 I really want this one to match `b`-`v` and `li`-`lI`, but I have to
-crank down the indel penalty for that to happen. Or I have to ignore
-word boundaries entirely.
+ignore word boundaries entirely. I need to figure out how to favor the
+kind of alignment.
 
 ``` r
 x <- align_phones(

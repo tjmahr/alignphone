@@ -337,7 +337,7 @@ phone_match_partial <- function(x, y, match = 1, mismatch = -1) {
 
   is_disguise <- list(sort(c(x, y))) %in% disguise_pairs()
   is_friendly <- list(sort(c(x, y))) %in% friendly_pairs()
-  both_gap <- all(c(x, y) %in% c(gap, "-", " "))
+  both_gap <- all(c(x, y) %in% c(gap, "-", " ", "."))
   c_x <- x %in% consonants
   c_y <- y %in% consonants
   v_x <- x %in% vowels
@@ -353,6 +353,8 @@ phone_match_partial <- function(x, y, match = 1, mismatch = -1) {
     result <- .4 * mismatch
   } else if (v_x && v_y) {
     result <- .6 * mismatch
+  # } else if (both_gap) {
+    # result <- 0
   } else {
     result <- mismatch
   }

@@ -19,6 +19,7 @@ Depends:
     R (>= 4.2.0)
 Imports: 
     magrittr,
-    purrr
+    purrr,
+    stringr
 Suggests: 
     testthat (>= 2.1.0)
