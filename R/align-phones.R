@@ -24,6 +24,13 @@ align_phones <- function(
     indel_extend = -1
 ) {
 
+  if (! inherits(a, "alignment_utterance")) {
+    a <- alignment_utterance(a)
+  }
+  if (! inherits(b, "alignment_utterance")) {
+    b <- alignment_utterance(b)
+  }
+
   # The global alignment problem follows two steps. Filling the matrix with
   # scores and tracing back through it to find the best score. Each of those
   # has their own function.
@@ -41,12 +48,19 @@ align_phones <- function(
     fun_match = fun_match
   )
 
+  # g <- as.character(grids$grid)
+  # dim(g) <- dim(grids$grid)
+  # g[cbind(aligned$is, aligned$js)] <- c(" ", aligned$a_alignment)
+  # g
+  # dimnames(grids$grid)
   # put the original strings at the front of the results
   results <- list(a = a, b = b)
   results[names(aligned)] <- aligned
 
   structure(results, class = c("phone_alignment", "list"))
 }
+
+
 
 #' @export
 set_utterance_labels <- function(x, a = NULL, b = NULL) {
@@ -80,11 +94,11 @@ format.phone_alignment <- function(x, ...) {
     stringr::str_pad(lengths, side = "right") |>
     paste0(collapse = " ")
 
-  if (!is.null(x$a_label)) {
-    pad_top <- paste(x$a_label, pad_top, sep = "\n")
+  if (!is.null(x$a$label)) {
+    pad_top <- paste(x$a$label, pad_top, sep = "\n")
   }
-  if (!is.null(x$b_label)) {
-    pad_bottom <- paste(pad_bottom, x$b_label, sep = "\n")
+  if (!is.null(x$b$label)) {
+    pad_bottom <- paste(pad_bottom, x$b$label, sep = "\n")
   }
 
   paste(pad_top, marks, pad_bottom, sep = "\n")
@@ -101,12 +115,15 @@ as.data.frame.phone_alignment <- function(x, ...) {
 
 
 align_grid_setup <- function(
-    a,
-    b,
-    fun_match = phone_match_exact,
-    indel_create = -2,
-    indel_extend = -1
+  a,
+  b,
+  fun_match = phone_match_exact,
+  indel_create = -2,
+  indel_extend = -1
 ) {
+
+  a <- a$phones
+  b <- b$phones
 
   # We keep track of the scores (grid), matching types (grid_edits), and the
   # direction of the winning match (grid_moves)
@@ -191,6 +208,9 @@ align_grid_trace <- function(grid, grid_moves, fun_match) {
   i <- length(grid_a)
   j <- length(grid_b)
 
+  is <- i
+  js <- j
+
   # https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm
   while (i > 1 || j > 1) {
     diagonal <- grid_moves[i, j] == ".diag"
@@ -210,6 +230,8 @@ align_grid_trace <- function(grid, grid_moves, fun_match) {
       alignment_b <- c(grid_b[j], alignment_b)
       j <- j - 1
     }
+    is <- c(i, is)
+    js <- c(j, js)
   }
 
   scores <- purrr::map2_dbl(
@@ -226,7 +248,9 @@ align_grid_trace <- function(grid, grid_moves, fun_match) {
     a_alignment = alignment_a,
     b_alignment = alignment_b,
     scores = scores,
-    aligners = aligners
+    aligners = aligners,
+    is = is,
+    js = js
   )
 
 }
@@ -409,10 +433,57 @@ str_split_at_hyphens <- function(xs) {
 }
 
 #' @export
+clean_old_alignment_result <- function(xs, remove_word_spaces = FALSE) {
+  x <- xs %>%
+    stringr::str_replace_all(" +", "- -") %>%
+    str_split_at_hyphens() %>%
+    stringr::str_subset("^$", negate = TRUE)
+  if (remove_word_spaces) {
+    x[x != " "]
+  } else {
+    x
+  }
+}
+
+#' @export
 clean_old_alignment_result <- function(xs) {
   xs %>%
     stringr::str_replace_all(" +", "- -") %>%
     str_split_at_hyphens() %>%
     stringr::str_subset("^$", negate = TRUE)
+}
+
+
+
+
+#' @export
+alignment_utterance <- function(x, label = NA_character_) {
+  UseMethod("alignment_utterance")
+}
+
+#' @export
+alignment_utterance.character <- function(x, label = NA_character_) {
+  structure(
+    list(phones = x, label = label),
+    class = c("alignment_utterance", "list")
+  )
+}
+
+#' @export
+alignment_utterance.alignment_utterance <- function(x) {
+  x
+}
+
+#' @export
+format.alignment_utterance <- function(x) {
+  phones <- x$phones |>
+    paste0(collapse = " ")
+
+  sprintf("/%s/ (%s)", phones, x$label)
+}
+
+#' @export
+print.alignment_utterance <- function(x, ...) {
+  format(x, ...)
 }
 

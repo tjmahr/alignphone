@@ -35,30 +35,32 @@ This is a basic example which shows you how to solve a common problem:
 ```{r example}
 library(alignphone)
 
-# the little boy ran home
-a <- wiscbet_to_ipa(c(
-  "dh", "4", ".", 
-  "l", "I", "t", "l", ".", 
-  "b", "cI", ".", 
-  "r", "ae", "n", ".",  
+a <- wiscbet_to_ipa(
+  "dh", "4", " ", 
+  "l", "I", ".", "t", "4", "l", " ", 
+  "b", "cI", " ", 
+  "r", "ae", "n", " ",  
   "h", "oU", "m"
-))
+) |> 
+  alignment_utterance("the little boy went home")
+a
 
-# the boy went home
-b <- wiscbet_to_ipa(c(
-  "dh", "4", ".", 
-  "b", "cI", ".", 
-  "w", "E", "n", "t", ".", 
+b <- wiscbet_to_ipa(
+  "dh", "4", " ", 
+  "b", "cI", " ", 
+  "w", "E", "n", "t", " ", 
   "h", "oU", "m"
-))
+)|> 
+  alignment_utterance("the boy went home")
+b
+
 ```
 
 By default, the alignment only rewards exact matches. These appear in the
 alignment as `|`.
 
 ```{r}
-ab1 <- align_phones(a, b) |> 
-  set_utterance_labels("the little boy ran home", "the boy went home")
+ab1 <- align_phones(a, b)
 ab1
 
 ab1$scores
@@ -92,8 +94,10 @@ This says that the listener heard deletions of "eI" and "b" and a substitution o
 But the partial-credit implementation here yields a better alignment.
 
 ```{r}
-a <- wiscbet_to_ipa("b", "eI", "b", "i", "s", "@", "k")
-b <- wiscbet_to_ipa("w", "i", "r", "I", "s", "t", "@", "k")
+a <- wiscbet_to_ipa("b", "eI", "b", "i", "s", "@", "k") |> 
+  alignment_utterance("baby sock")
+b <- wiscbet_to_ipa("w", "i", "r", "I", "s", "t", "@", "k") |> 
+  alignment_utterance("we restock")
 ab2 <- align_phones(a, b, phone_match_partial)
 ab2
 as.data.frame(ab2)
@@ -113,8 +117,12 @@ consonants will pair [b] and [r]. Our partial credit function assigns -.2 to
 mismatches that are very similar. In this case, it aligns [b] and [p].
 
 ```{r}
-buddy <- str_split_at_hyphens("b-^-d-i") |> wiscbet_to_ipa()
-pretty <- str_split_at_hyphens("p-r-I-t-i") |> wiscbet_to_ipa()
+buddy <- str_split_at_hyphens("b-^-d-i") |> 
+  wiscbet_to_ipa() |> 
+  alignment_utterance("buddy")
+pretty <- str_split_at_hyphens("p-r-I-t-i") |> 
+  wiscbet_to_ipa() |> 
+  alignment_utterance("pretty")
 
 align_phones(buddy, pretty) |> 
   print() |> 
@@ -131,9 +139,11 @@ This is okay.
 
 ```{r}
 point_to_teddy <- clean_old_alignment_result("p-cI-n-t t-u t-E-d-i") |> 
-  wiscbet_to_ipa()
+  wiscbet_to_ipa() |> 
+  alignment_utterance("point to teddy")
 point_teddy <- clean_old_alignment_result("p-cI-n-t ----t-E-d-i") |> 
-  wiscbet_to_ipa()
+  wiscbet_to_ipa() |> 
+  alignment_utterance("point teddy")
 
 align_phones(point_to_teddy, point_teddy, phone_match_partial)
 ```
@@ -141,32 +151,64 @@ align_phones(point_to_teddy, point_teddy, phone_match_partial)
 This treats *hotdogs* and *hot dogs* as a mismatch on the space. It shouldn't.
 
 ```{r}
-those_eat_those_hotdogs_soon <- clean_old_alignment_result(
-  "dh-oU-z i-t dh-oU-z h-@-t-d-c-g-z s-u-n"
-) |> wiscbet_to_ipa()
-hot_dogs <- clean_old_alignment_result(
-  "--------------------h-@-t  d-c-g-z------"
-) |> wiscbet_to_ipa()
+a <- "dh-oU-z i-t dh-oU-z h-@-t-d-c-g-z s-u-n" |> 
+  clean_old_alignment_result() |> 
+  wiscbet_to_ipa() |> 
+  alignment_utterance("those eat those hotdogs soon")
+a
 
-r1 <- align_phones(those_eat_those_hotdogs_soon, hot_dogs, phone_match_partial)
+b <- "--------------------h-@-t  d-c-g-z------" |> 
+  clean_old_alignment_result() |> 
+  wiscbet_to_ipa() |> 
+  alignment_utterance("hot dogs")
+b
+
+r1 <- align_phones(a, b, phone_match_partial)
 r1
 ```
+
+This one works when there are word gap characters.
 
 ```{r}
 he_wants_somebody_to_push_him <- clean_old_alignment_result(
   "h-i w-^-n-t-s s-^-m-b-^-d-i t-u p-U-sh h-I-m"
-) |> wiscbet_to_ipa()
+) |> 
+  wiscbet_to_ipa() |> 
+  alignment_utterance("he wants somebody to push him")  
+
 he_wants_to_push_him <- clean_old_alignment_result(
   "h-i w-^-n-t-s --------------t-u p-U-sh h-I-m"
-) |> wiscbet_to_ipa()
+) |> 
+  wiscbet_to_ipa() |> 
+  alignment_utterance("he wants to push him")  
 
 r1 <- align_phones(
   he_wants_somebody_to_push_him, 
   he_wants_to_push_him, 
   phone_match_partial
 )
+
 r1
 ```
+
+But when the gaps are removed, it does not work.
+
+```{r}
+remove_gaps <- function(x) {
+  gaps <- x$phones %in% c(" ", ".")
+  x$phones <- x$phones[!gaps]
+  x
+}
+
+
+r1 <- align_phones(
+  he_wants_somebody_to_push_him |> remove_gaps(), 
+  he_wants_to_push_him |> remove_gaps(), 
+  phone_match_partial
+)
+r1
+```
+
 
 ### the swift benchmark
 
@@ -174,23 +216,22 @@ I really want this one to match `b`-`v` and `li`-`lI`, but I have to ignore word
 boundaries entirely. I need to figure out how to favor the kind of alignment.
 
 ```{r}
-x <- align_phones(
-  # long list of ex lovers
-  wiscbet_to_ipa(
-    "l", "@", "ng",
+x <- wiscbet_to_ipa(
+    "l", "@", "ng", 
     "l", "I", "s", "t", 
     "^", "v", 
     "E", "k", "s", 
     "l", "^", "v", "4^", "z"
-  ),
-  # lonely starbucks lovers
-  wiscbet_to_ipa(
+  )
+
+y <- wiscbet_to_ipa(
     "l", "oU", "n", "l", "i", 
     "s", "t", "@", "r", "b", "^", "k", "s", 
     "l", "^", "v", "4^", "z"
-  ),
-  phone_match_partial
-) |> 
+  )
+
+
+x <- align_phones(x, y, phone_match_partial) |> 
   set_utterance_labels(
     "long list of ex-lovers",
     "lonely starbucks lovers"
