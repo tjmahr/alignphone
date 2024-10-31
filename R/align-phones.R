@@ -48,13 +48,8 @@ align_phones <- function(
     fun_match = fun_match
   )
 
-  # g <- as.character(grids$grid)
-  # dim(g) <- dim(grids$grid)
-  # g[cbind(aligned$is, aligned$js)] <- c(" ", aligned$a_alignment)
-  # g
-  # dimnames(grids$grid)
   # put the original strings at the front of the results
-  results <- list(a = a, b = b)
+  results <- list(a = a, b = b, grids = grids)
   results[names(aligned)] <- aligned
 
   structure(results, class = c("phone_alignment", "list"))
@@ -64,8 +59,8 @@ align_phones <- function(
 
 #' @export
 set_utterance_labels <- function(x, a = NULL, b = NULL) {
-  x$a_label <- a
-  x$b_label <- b
+  x$a$label <- a
+  x$b$label <- b
   x
 }
 
@@ -157,9 +152,6 @@ align_grid_setup <- function(
   for (i in seq(2, nrow(grid))) {
     for (j in seq(2, ncol(grid))) {
 
-      # (i-1, j-1) |    (i-1, j)
-      # (i  , j-1) | ME (i,   j)
-
       # If the square above me is a match, then I am creating a gap.
       indel_penalty_down <- ifelse(
         grid_edits[i - 1, j    ] == ".match",
@@ -230,6 +222,7 @@ align_grid_trace <- function(grid, grid_moves, fun_match) {
       alignment_b <- c(grid_b[j], alignment_b)
       j <- j - 1
     }
+
     is <- c(i, is)
     js <- c(j, js)
   }
@@ -377,8 +370,8 @@ phone_match_partial <- function(x, y, match = 1, mismatch = -1) {
     result <- .4 * mismatch
   } else if (v_x && v_y) {
     result <- .6 * mismatch
-  # } else if (both_gap) {
-    # result <- 0
+  } else if (both_gap) {
+    result <- 0
   } else {
     result <- mismatch
   }
@@ -434,9 +427,9 @@ str_split_at_hyphens <- function(xs) {
 
 #' @export
 clean_old_alignment_result <- function(xs, remove_word_spaces = FALSE) {
-  x <- xs %>%
-    stringr::str_replace_all(" +", "- -") %>%
-    str_split_at_hyphens() %>%
+  x <- xs |>
+    stringr::str_replace_all(" +", "- -") |>
+    str_split_at_hyphens() |>
     stringr::str_subset("^$", negate = TRUE)
   if (remove_word_spaces) {
     x[x != " "]
@@ -447,9 +440,9 @@ clean_old_alignment_result <- function(xs, remove_word_spaces = FALSE) {
 
 #' @export
 clean_old_alignment_result <- function(xs) {
-  xs %>%
-    stringr::str_replace_all(" +", "- -") %>%
-    str_split_at_hyphens() %>%
+  xs |>
+    stringr::str_replace_all(" +", "- -") |>
+    str_split_at_hyphens() |>
     stringr::str_subset("^$", negate = TRUE)
 }
 
@@ -484,6 +477,7 @@ format.alignment_utterance <- function(x) {
 
 #' @export
 print.alignment_utterance <- function(x, ...) {
-  format(x, ...)
+  writeLines(format(x, ...))
+  invisible(x)
 }
 

@@ -6,11 +6,12 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of alignphone is to …
+The goal of alignphone is to compute phoneme-by-phoneme alignments of
+two strings of words.
 
 ## Installation
 
-And the development version from [GitHub](https://github.com/) with:
+Install the development version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
@@ -19,7 +20,14 @@ devtools::install_github("tjmahr/alignphone")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+We want to align the phonemes from the sentence “the little boy went
+home” with the sentence “the boy went home”.
+
+First, we create `alignment_utterance()` for each sentence. These
+provide an orthographic version of the sentence and the constituent
+phonemes. Our lab used/uses an ASCII substitute for IPA, so I am going
+to convert the provide the phonemes in “wiscbet” and convert them to IPA
+before creating the alignment utterance.
 
 ``` r
 library(alignphone)
@@ -46,8 +54,7 @@ b
 #> /ð ə   b ɔɪ   w ɛ n t   h o m/ (the boy went home)
 ```
 
-By default, the alignment only rewards exact matches. These appear in
-the alignment as `|`.
+Now, we can align the two utterances.
 
 ``` r
 ab1 <- align_phones(a, b)
@@ -57,23 +64,69 @@ ab1
 #> | | |               | |  |     |   | | | |
 #> ð ə   - - - - - - - b ɔɪ   w ɛ n t   h o m
 #> the boy went home
-
-ab1$scores
-#>  [1]  1  1  1 -1 -1 -1 -1 -1 -1 -1  1  1  1 -1 -1  1 -1  1  1  1  1
 ```
 
-A custom comparison function can be used for alignment. This package
-provides `phone_match_partial()` which assigns partial credit based
-similar phonetic features. Partial matches appear in the alignment as
-`:`. The `as.data.frame()` method for the alignment shows the alignment
-with scores.
+The goal of the alignment algorithm is to create the best-scoring
+pairing of phonemes from each utterance. Matching phonemes get positive
+points, and mismatching phonemes get negative points. Here is what we
+see in the above example:
+
+- The initial /ð ə/ phonemes are exact matches and pair off perfectly.
+  These full-score pairings are indicated with `|` character.
+
+- The space `` after the word “boy” in each sentence is also aligned.
+
+- The word “little” is completely missing in one of the sentences but
+  the word “boy” is in both sentences. So, the alignment inserts gap
+  characters (`-`) as needed until the /b ɔɪ/ characters are aligned.
+
+- “ran” and “went” are aligned so that the shared /n/ is fully scored.
+
+- The phonemes /h o m/ are also aligned.
+
+By default, the alignment only rewards exact matches (`|`), and gap
+insertion is penalized. The `as.data.frame()` method for the alignment
+shows the alignment with scores.
+
+``` r
+as.data.frame(ab1)
+#>     a  b scores
+#> 1   ð  ð      1
+#> 2   ə  ə      1
+#> 3             1
+#> 4   l  -     -1
+#> 5   ɪ  -     -1
+#> 6   .  -     -1
+#> 7   t  -     -1
+#> 8   ə  -     -1
+#> 9   l  -     -1
+#> 10     -     -1
+#> 11  b  b      1
+#> 12 ɔɪ ɔɪ      1
+#> 13            1
+#> 14  r  w     -1
+#> 15  æ  ɛ     -1
+#> 16  n  n      1
+#> 17  -  t     -1
+#> 18            1
+#> 19  h  h      1
+#> 20  o  o      1
+#> 21  m  m      1
+```
+
+A custom comparison function can be used for alignment. Note that the
+pairing of the word boundary character (``) or the syllable boundary
+(`.`) with a gap (`-`) is still penalized. This package provides
+`phone_match_partial()` which assigns partial credit based similar
+phonetic features, such as `w` and `r`. Partial matches appear in the
+alignment as `:`.
 
 ``` r
 ab2 <- align_phones(a, b, fun_match = phone_match_partial)
 ab2
 #> the little boy went home
 #> ð ə   l ɪ . t ə l   b ɔɪ   r æ n -   h o m
-#> | | |               | |  | : : |   | | | |
+#> | | |     :       : | |  | : : |   | | | |
 #> ð ə   - - - - - - - b ɔɪ   w ɛ n t   h o m
 #> the boy went home
 
@@ -84,11 +137,11 @@ as.data.frame(ab2)
 #> 3           1.0
 #> 4   l  -   -1.0
 #> 5   ɪ  -   -1.0
-#> 6   .  -   -1.0
+#> 6   .  -    0.0
 #> 7   t  -   -1.0
 #> 8   ə  -   -1.0
 #> 9   l  -   -1.0
-#> 10     -   -1.0
+#> 10     -    0.0
 #> 11  b  b    1.0
 #> 12 ɔɪ ɔɪ    1.0
 #> 13          1.0
@@ -102,43 +155,102 @@ as.data.frame(ab2)
 #> 21  m  m    1.0
 ```
 
-Our current (non-R) alignment program aligns “baby sock” (child) and “we
-restock” (listener) as:
+Here /r/ and /w/ as well as the two aligned mismatching vowels are given
+partial credit.
 
-    b-eI-b-i s-------@-k
-           ||        | |
-    w------i r-E-s-t-@-k
+### indel penalties
 
-This says that the listener heard deletions of “eI” and “b” and a
-substitution of \[r\] for /s/.
+Above, we saw that changing the phoneme-similarity scoring system
+yielded a different alignment. The other contributor for alignment
+scoring are “indel” penalties. These are penalties for creating a gap
+(`indel_create` with a default penalty of -2) and extending a gap
+(`indel_extend` with a default of -1).
 
-But the partial-credit implementation here yields a better alignment.
+<!--  Our lab's legacy program for phoneme -->
+<!-- alignments---its C++ source code is impenetrable to me, hence this -->
+<!-- package---provides the following alignment: -->
+<!-- ``` -->
+<!-- b-eI-b-i s-------@-k -->
+<!--        ||        | | -->
+<!-- w------i r-E-s-t-@-k -->
+<!-- ``` -->
+<!-- I can reproduce this strange alignment by lowering the indel penalties: -->
+
+Consider another example. A child speaker said “baby sock” and a
+listener transcribed it as “we restock”. With the default scoring rules
+(`phone_match_exact`), we get the following alignment:
 
 ``` r
 a <- wiscbet_to_ipa("b", "eI", "b", "i", "s", "@", "k") |> 
   alignment_utterance("baby sock")
 b <- wiscbet_to_ipa("w", "i", "r", "I", "s", "t", "@", "k") |> 
   alignment_utterance("we restock")
-ab2 <- align_phones(a, b, phone_match_partial)
-ab2
+align_phones(a, b, phone_match_exact)
+#> baby sock
+#> b e b i s - ɑ k
+#>         |   | |
+#> w i r ɪ s t ɑ k
+#> we restock
+```
+
+Which only inserts a single gap for `t`. If we lower the penalty for
+creating a gap, we see that it tries to align the two /i/ vowels.
+
+``` r
+align_phones(a, b, phone_match_exact, indel_create = -.5)
+#> baby sock
+#> b e b i - - s - ɑ k
+#>       |     |   | |
+#> - w - i r ɪ s t ɑ k
+#> we restock
+```
+
+Things become pathological when we remove the penalty on gap extension.
+
+``` r
+align_phones(a, b, phone_match_exact, indel_extend = 0)
+#> baby sock
+#> - - - - - - b e b i s ɑ k
+#>                       | |
+#> w i r ɪ s t - - - - - ɑ k
+#> we restock
+```
+
+To get the most phonetically plausible alignment, we can assign partial
+credit.
+
+``` r
+align_phones(a, b, phone_match_partial)
 #> baby sock
 #> b e b i s - ɑ k
 #> : : : : |   | |
 #> w i r ɪ s t ɑ k
 #> we restock
-as.data.frame(ab2)
-#>   a b scores
-#> 1 b w   -0.4
-#> 2 e i   -0.6
-#> 3 b r   -0.4
-#> 4 i ɪ   -0.2
-#> 5 s s    1.0
-#> 6 - t   -1.0
-#> 7 ɑ ɑ    1.0
-#> 8 k k    1.0
 ```
 
-Here /s/ is matched with \[s\] and no sounds besides /t/ were deleted.
+I am not sure what to do with boundaries. We can word and syllable
+boundaries so that alignments will get credit for following matching the
+prosodic structure of the words, but for this example, this adjustment
+doesn’t matter.
+
+``` r
+a <- wiscbet_to_ipa("b", "eI", ".", "b", "i", " ", "s", "@", "k") |> 
+  alignment_utterance("baby sock")
+b <- wiscbet_to_ipa("w", "i", " ", "r", "I", ".", "s", "t", "@", "k") |> 
+  alignment_utterance("we restock")
+align_phones(a, b, phone_match_exact)
+#> baby sock
+#> b e . b i   s - ɑ k
+#>             |   | |
+#> w i   r ɪ . s t ɑ k
+#> we restock
+align_phones(a, b, phone_match_partial)
+#> baby sock
+#> b e . b i   s - ɑ k
+#> : : : : : : |   | |
+#> w i   r ɪ . s t ɑ k
+#> we restock
+```
 
 ## More tests
 
@@ -159,29 +271,20 @@ pretty <- str_split_at_hyphens("p-r-I-t-i") |>
   wiscbet_to_ipa() |> 
   alignment_utterance("pretty")
 
-align_phones(buddy, pretty) |> 
-  print() |> 
-  as.data.frame()
+align_phones(buddy, pretty)
 #> buddy
 #> - b ʌ d i
 #>         |
 #> p r ɪ t i
 #> pretty
-#>   a b scores
-#> 1 - p     -1
-#> 2 b r     -1
-#> 3 ʌ ɪ     -1
-#> 4 d t     -1
-#> 5 i i      1
 
-align_phones(buddy, pretty, phone_match_partial) |> 
-  print() |> 
-  as.data.frame()
+align_phones(buddy, pretty, phone_match_partial)
 #> buddy
 #> b - ʌ d i
 #> :   : : |
 #> p r ɪ t i
 #> pretty
+align_phones(buddy, pretty, phone_match_partial) |> as.data.frame()
 #>   a b scores
 #> 1 b p   -0.2
 #> 2 - r   -1.0
@@ -205,7 +308,7 @@ point_teddy <- clean_old_alignment_result("p-cI-n-t ----t-E-d-i") |>
 align_phones(point_to_teddy, point_teddy, phone_match_partial)
 #> point to teddy
 #> p ɔɪ n t   t u   t ɛ d i
-#> | |  | | |       | | | |
+#> | |  | | |     : | | | |
 #> p ɔɪ n t   - - - t ɛ d i
 #> point teddy
 ```
@@ -232,7 +335,7 @@ r1 <- align_phones(a, b, phone_match_partial)
 r1
 #> those eat those hotdogs soon
 #> ð o z   i t   ð o z   h ɑ t - d ɔ g z   s u n
-#>                       | | |   | | | |        
+#>       :     :       : | | | : | | | | :      
 #> - - - - - - - - - - - h ɑ t   d ɔ g z - - - -
 #> hot dogs
 ```
@@ -261,7 +364,7 @@ r1 <- align_phones(
 r1
 #> he wants somebody to push him
 #> h i   w ʌ n t s   s ʌ m b ʌ d i   t u   p ʊ ʃ   h ɪ m
-#> | | | | | | | | |                 | | | | | | | | | |
+#> | | | | | | | | |               : | | | | | | | | | |
 #> h i   w ʌ n t s   - - - - - - - - t u   p ʊ ʃ   h ɪ m
 #> he wants to push him
 ```
@@ -311,16 +414,42 @@ y <- wiscbet_to_ipa(
   )
 
 
-x <- align_phones(x, y, phone_match_partial) |> 
+z <- align_phones(x, y, phone_match_partial) |> 
   set_utterance_labels(
     "long list of ex-lovers",
     "lonely starbucks lovers"
   ) |> 
-  print() |> 
-  as.data.frame()
+  print() 
 #> NA
 #> l ɑ ŋ l ɪ s t ʌ - v ɛ k s l ʌ v ɚ z
 #> | : : | : | | :   : : | | | | | | |
 #> l o n l i s t ɑ r b ʌ k s l ʌ v ɚ z
+#> NA
+
+
+x2 <- wiscbet_to_ipa(
+    "l", "@", "ng", " ",
+    "l", "I", "s", "t", " ",
+    "^", "v", " ",
+    "E", "k", "s", " ", 
+    "l", "^", ".", "v", "4^", "z"
+  )
+
+y2 <- wiscbet_to_ipa(
+    "l", "oU", "n", ".", "l", "i", " ",
+    "s", "t", "@", "r", ".", "b", "^", "k", "s", " ",
+    "l", "^", ".", "v", "4^", "z"
+  )
+
+z <- align_phones(x2, y2, phone_match_partial) |> 
+  set_utterance_labels(
+    "long list of ex-lovers",
+    "lonely starbucks lovers"
+  ) |> 
+  print() 
+#> NA
+#> l ɑ ŋ   l ɪ - s t   ʌ v   ɛ k s   l ʌ . v ɚ z
+#> | : : : | : : | |         : | | | | | | | | |
+#> l o n . l i   s t ɑ r . b ʌ k s   l ʌ . v ɚ z
 #> NA
 ```
