@@ -43,8 +43,8 @@ align_phones <- function(
   )
 
   aligned <- align_grid_trace(
-    grids$grid,
-    grids$grid_moves,
+    grid = grids$grid,
+    grid_moves = grids$grid_moves,
     fun_match = fun_match
   )
 
@@ -117,69 +117,87 @@ align_grid_setup <- function(
   indel_extend = -1
 ) {
 
-  a <- a$phones
-  b <- b$phones
+  as <- a$phones
+  bs <- b$phones
 
   # We keep track of the scores (grid), matching types (grid_edits), and the
   # direction of the winning match (grid_moves)
   grid_moves <- grid_edits <- grid <- matrix(
-    nrow = 1 + length(a),
-    ncol = 1 + length(b)
+    nrow = 1 + length(as),
+    ncol = 1 + length(bs)
   )
 
   # The top left corner is an aligned pair of blanks with score 0.
-  rownames(grid) <- c("", a)
-  colnames(grid) <- c("", b)
+  rownames(grid) <- c("", as)
+  colnames(grid) <- c("", bs)
+
+  seq_row_fill <- function(
+    matrix,
+    prefix = character(0),
+    from = 1,
+    by = 1
+  ) {
+    values <- c(prefix, seq(from, length.out = ncol(matrix), by = by))
+    values[seq_len(ncol(matrix))]
+  }
+  seq_col_fill <- function(
+    matrix,
+    prefix = character(0),
+    from = 1,
+    by = 1
+  ) {
+    seq_row_fill(t(matrix), prefix, from, by)
+  }
+  rep_row_fill <- function(matrix, prefix = character(0), fill) {
+    values <- c(prefix, rep(fill, ncol(matrix)))
+    values[seq_len(ncol(matrix))]
+  }
+  rep_col_fill <- function(matrix, prefix = character(0), fill) {
+    rep_row_fill(t(matrix), prefix, fill)
+  }
 
   # Walking down the first row or first column will create a gap and then extend
   # it on each step.
-  grid[1, ] <- c(
-    0,
-    seq(indel_create, length.out = ncol(grid) - 1, by = indel_extend)
-  )
-  grid[, 1] <- c(
-    0,
-    seq(indel_create, length.out = nrow(grid) - 1, by = indel_extend)
-  )
+  grid_edits[1, ] <- rep_row_fill(grid_edits, c(".match", ".indel_c"), ".indel_e")
+  grid_edits[, 1] <- rep_col_fill(grid_edits, c(".match", ".indel_c"), ".indel_e")
 
-  grid_edits[1, ] <- c(".match", rep(".indel", ncol(grid) - 1))
-  grid_edits[, 1] <- c(".match", rep(".indel", nrow(grid) - 1))
+  grid_moves[1, ] <- rep_row_fill(grid_moves, ".diag", ".right")
+  grid_moves[, 1] <- rep_col_fill(grid_moves, ".diag", ".down")
 
-  grid_moves[1, ] <- c(".diag", rep(".right", ncol(grid) - 1))
-  grid_moves[, 1] <- c(".diag", rep(".down", nrow(grid) - 1))
+  grid[1, ] <- seq_row_fill(grid, 0, indel_create, indel_extend)
+  grid[, 1] <- seq_col_fill(grid, 0, indel_create, indel_extend)
+
+
+  lookup <- c(".indel_c" = indel_create, ".indel_e" = indel_extend)
 
   # The value in each cell is either a match from the diagonal or an indel.
   for (i in seq(2, nrow(grid))) {
     for (j in seq(2, ncol(grid))) {
 
       # If the square above me is a match, then I am creating a gap.
-      indel_penalty_down <- ifelse(
-        grid_edits[i - 1, j    ] == ".match",
-        indel_create,
-        indel_extend
-      )
       # If the square left of me is a match, then I am creating a gap.
-      indel_penalty_right <- ifelse(
-        grid_edits[i    , j - 1] == ".match",
-        indel_create,
-        indel_extend
+      match_u <- grid_edits[i - 1, j    ] == ".match"
+      match_l <- grid_edits[i    , j - 1] == ".match"
+      indel_d_edit <- ifelse(match_u, ".indel_c", ".indel_e")
+      indel_r_edit <- ifelse(match_l, ".indel_c", ".indel_e")
+      indel_d_penalty <- lookup[indel_d_edit] |> unname()
+      indel_r_penalty <- lookup[indel_r_edit] |> unname()
+
+      a_phone <- rownames(grid)[i]
+      b_phone <- colnames(grid)[j]
+      score_outcomes <- c(
+        grid[i - 1, j - 1] + fun_match(a_phone, b_phone),
+        grid[i - 1, j    ] + indel_d_penalty,
+        grid[i    , j - 1] + indel_r_penalty
       )
+      edit_outcomes <- c(".match", indel_d_edit, indel_r_edit)
+      move_outcomes <- c(".diag", ".down", ".right")
 
-      outcomes <- c(
-        .match  = grid[i - 1, j - 1] + fun_match(c("", a)[i], c("", b)[j]),
-        .delete = grid[i - 1, j    ] + indel_penalty_down,
-        .insert = grid[i    , j - 1] + indel_penalty_right
-      )
+      outcome_position <- which.max(score_outcomes)
+      grid[i, j] <- score_outcomes[outcome_position]
+      grid_edits[i, j] <- edit_outcomes[outcome_position]
+      grid_moves[i, j] <- move_outcomes[outcome_position]
 
-      grid[i, j] <- max(outcomes)
-
-      grid_edits[i, j] <- ifelse(
-        names(which.max(outcomes)) == ".match",
-        ".match",
-        ".indel"
-      )
-
-      grid_moves[i, j] <- c(".diag", ".down", ".right")[which.max(outcomes)]
     }
   }
 
