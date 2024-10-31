@@ -167,13 +167,13 @@ align_grid_setup <- function(
   grid[1, ] <- seq_row_fill(grid, 0, indel_create, indel_extend)
   grid[, 1] <- seq_col_fill(grid, 0, indel_create, indel_extend)
 
-
   lookup <- c(".indel_c" = indel_create, ".indel_e" = indel_extend)
 
-  # The value in each cell is either a match from the diagonal or an indel.
-  for (i in seq(2, nrow(grid))) {
-    for (j in seq(2, ncol(grid))) {
+  row_seq <- if (nrow(grid) > 1) seq(2, nrow(grid)) else numeric(0)
+  col_seq <- if (ncol(grid) > 1) seq(2, ncol(grid)) else numeric(0)
 
+  for (i in row_seq) {
+    for (j in col_seq) {
       # If the square above me is a match, then I am creating a gap.
       # If the square left of me is a match, then I am creating a gap.
       match_u <- grid_edits[i - 1, j    ] == ".match"
@@ -211,6 +211,58 @@ align_grid_setup <- function(
 
 
 align_grid_trace <- function(grid, grid_moves, fun_match) {
+  grid_a <- rownames(grid)
+  grid_b <- colnames(grid)
+  alignment_a <- character(0)
+  alignment_b <- character(0)
+  i <- length(grid_a)
+  j <- length(grid_b)
+
+  is <- i
+  js <- j
+
+  # https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm
+  while (i > 1 || j > 1) {
+    move <- grid_moves[i, j]
+    offsets_i <- c(".diag" = -1, ".down" = -1, ".right" =  0)
+    offsets_j <- c(".diag" = -1, ".down" =  0, ".right" = -1)
+    new_as <- c(".diag" = grid_a[i], ".down" = grid_a[i], ".right" =  "-")
+    new_bs <- c(".diag" = grid_b[j], ".down" =  "-", ".right" = grid_b[j])
+
+    i <- i + offsets_i[move]
+    j <- j + offsets_j[move]
+
+    alignment_a <- c(new_as[move], alignment_a)
+    alignment_b <- c(new_bs[move], alignment_b)
+
+    is <- c(i, is)
+    js <- c(j, js)
+  }
+
+  scores <- purrr::map2_dbl(
+    alignment_a,
+    alignment_b,
+    fun_match
+  )
+
+  aligners <- rep(":", length(scores))
+  aligners <- ifelse(scores == fun_match("d", "d"), "|", aligners)
+  aligners <- ifelse(scores == fun_match("d", " "), " ", aligners)
+
+  l <- list(
+    a_alignment = alignment_a,
+    b_alignment = alignment_b,
+    scores = scores,
+    aligners = aligners,
+    is = is,
+    js = js
+  )
+
+  lapply(l, unname)
+}
+
+
+align_grid_trace2 <- function(grid, grid_moves, fun_match) {
   grid_a <- rownames(grid)
   grid_b <- colnames(grid)
   alignment_a <- character(0)
@@ -266,57 +318,6 @@ align_grid_trace <- function(grid, grid_moves, fun_match) {
 
 }
 
-align_grid_walk <- function(grid, fun_match = check, indel = -1) {
-  grid_a <- rownames(grid)
-  grid_b <- colnames(grid)
-  alignment_a <- character(0)
-  alignment_b <- character(0)
-  i <- length(grid_a)
-  j <- length(grid_b)
-
-  # https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm
-  while (i > 1 || j > 1) {
-    this_check <- fun_match(grid_a[i], grid_b[j])
-    not_top_row <- i > 1
-    not_left_row <- j > 1
-    not_corner <- not_top_row && not_left_row
-
-    diagonal <-  not_corner && grid[i, j] == (grid[i - 1, j - 1] + this_check)
-    upper    <- not_top_row && grid[i, j] == (grid[i - 1, j] + indel)
-
-    if (diagonal) {
-      alignment_a <- c(grid_a[i], alignment_a)
-      alignment_b <- c(grid_b[j], alignment_b)
-      i <- i - 1
-      j <- j - 1
-    } else if (upper) {
-      alignment_a <- c(grid_a[i], alignment_a)
-      alignment_b <- c("-", alignment_b)
-      i <- i - 1
-    } else {
-      alignment_a <- c("-", alignment_a)
-      alignment_b <- c(grid_b[j], alignment_b)
-      j <- j - 1
-    }
-  }
-
-  scores <- purrr::map2_dbl(
-    alignment_a,
-    alignment_b,
-    fun_match
-  )
-
-  aligners <- rep(":", length(scores))
-  aligners <- ifelse(scores == fun_match("d", "d"), "|", aligners)
-  aligners <- ifelse(scores == indel, " ", aligners)
-
-  list(
-    a_alignment = alignment_a,
-    b_alignment = alignment_b,
-    scores = scores,
-    aligners = aligners
-  )
-}
 
 #' @export
 phone_match_exact <- function(x, y, match = 1, mismatch = -1) {
