@@ -364,12 +364,16 @@ phone_match_partial <- function(x, y, match = 1, mismatch = -1) {
     "ʃ", "ʒ", "tʃ", "dʒ", "k", "g", "ŋ", "h", "r", "l", "w", "j"
   )
   vowels <- c(
-    "i", "ɪ", "ɛ", "æ", "ɜ˞", "ə", "ɚ", "ʌ",
+    "i", "ɪ", "ɛ", "æ", "\u025d", "ə", "ɚ", "ʌ",
     "ɑ", "u", "ʊ", "ɔ", "aɪ", "aʊ", "e", "o", "ɔɪ"
   )
 
   gap <- "."
-  stopifnot(c(x, y) %in% c(gap, vowels, consonants, "-", " "))
+
+  invalid_chars <- setdiff(c(x, y), c(gap, vowels, consonants, "-", " "))
+  if (length(invalid_chars)) {
+    cli::cli_alert_danger("Unrecognized IPA character{?s}: {invalid_chars}")
+  }
 
   is_disguise <- list(sort(c(x, y))) %in% disguise_pairs()
   is_friendly <- list(sort(c(x, y))) %in% friendly_pairs()
