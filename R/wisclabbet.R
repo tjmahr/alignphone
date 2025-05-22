@@ -13,9 +13,6 @@ wiscbet_to_ipa_rules <- c(
   "c"  = "\u0254",  # bought
   "u"  = "u",       # boot
   "U"  = "\u028a",  # book
-  # "3"  = "\u025c",  # [unclear]
-  # "a"  = "a",       # [unclear]
-  # "D"  = "\u0252",  # [unclear]
   "@I" = "a\u026a", # bite
   "@U" = "a\u028a", # bout
   "cI" = "\u0254\u026a",  # boyd
@@ -36,6 +33,48 @@ wiscbet_to_ipa_rules <- c(
   "." = ".", " " = " ", "-" = "-"
 )
 
+cmubet_to_ipa_rules <- c(
+  "IY" = "i",       # beat
+  "IH" = "\u026a",  # bit
+  "EY" = "e",       # bait
+  "EH" = "\u025b",  # bet
+  "AE" = "\u00e6",  # bat
+  "AH" = "\u0259",  # comma: unstressed, neutral vowel
+  "ER" = "\u025a",  # letter: unstressed, neutral r-colored vowel
+  "AA" = "\u0251",  # bot
+  "OW" = "o",       # boat
+  "AO" = "\u0254",  # bought
+  "UW" = "u",       # boot
+  "UH" = "\u028a",  # book
+  "AY" = "a\u026a", # bite
+  "AW" = "a\u028a", # bout
+  "OY" = "\u0254\u026a",  # boyd
+
+  "P" = "p", "B" = "b", "M"  = "m",
+  "T" = "t", "D" = "d", "N"  = "n",
+  "K" = "k", "G" = "g", "NG" = "\u014b",
+  "CH" = "t\u0283", "JH" = "d\u0292", # cheap, jeep
+
+  "F"  = "f", "V"  = "v",
+  "TH" = "\u03b8", "DH" = "\u00f0", # mouth, mouthe
+  "S"  = "s", "Z"  = "z",
+  "SH" = "\u0283", "ZH" = "\u0292", # bash, beige
+  "HH" = "h",
+
+  "Y" = "j", "W" = "w",
+  "R" = "r", "L" = "l",
+  "." = ".", " " = " ", "-" = "-"
+)
+
+# AH means schwa or carot depending on stress number but then we have
+# the same name repeated twice. So, this ..._full version has the repeated
+# names.
+cmubet_to_ipa_rules_full <- c(
+  cmubet_to_ipa_rules,
+  "AH" = "\u028c",  # but
+  "ER" = "\u025d"   # Bert
+)
+
 #' @export
 wiscbet_to_ipa <- function(...) {
   xs <- c(...)
@@ -47,6 +86,20 @@ ipa_to_wiscbet <- function(...) {
   xs <- c(...)
   inv_rules <- names(wiscbet_to_ipa_rules)
   names(inv_rules) <- wiscbet_to_ipa_rules
+  unname(inv_rules[xs])
+}
+
+#' @export
+cmubet_to_ipa <- function(...) {
+  xs <- c(...)
+  unname(cmubet_to_ipa_rules[xs])
+}
+
+#' @export
+ipa_to_cmubet <- function(...) {
+  xs <- c(...)
+  inv_rules <- names(cmubet_to_ipa_rules_full)
+  names(inv_rules) <- cmubet_to_ipa_rules_full
   unname(inv_rules[xs])
 }
 
