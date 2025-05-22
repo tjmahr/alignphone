@@ -18,6 +18,7 @@ RoxygenNote: 7.3.2
 Depends: 
     R (>= 4.2.0)
 Imports: 
+    cli,
     ggplot2,
     purrr,
     stringr
