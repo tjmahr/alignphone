@@ -420,11 +420,11 @@ z <- align_phones(x, y, phone_match_partial) |>
     "lonely starbucks lovers"
   ) |> 
   print() 
-#> NA
+#> long list of ex-lovers
 #> l ɑ ŋ l ɪ s t ʌ - v ɛ k s l ʌ v ɚ z
 #> | : : | : | | :   : : | | | | | | |
 #> l o n l i s t ɑ r b ʌ k s l ʌ v ɚ z
-#> NA
+#> lonely starbucks lovers
 
 
 x2 <- wiscbet_to_ipa(
@@ -447,9 +447,9 @@ z <- align_phones(x2, y2, phone_match_partial) |>
     "lonely starbucks lovers"
   ) |> 
   print() 
-#> NA
+#> long list of ex-lovers
 #> l ɑ ŋ   l ɪ - s t   ʌ v   ɛ k s   l ʌ . v ɚ z
 #> | : : : | : : | |         : | | | | | | | | |
 #> l o n . l i   s t ɑ r . b ʌ k s   l ʌ . v ɚ z
-#> NA
+#> lonely starbucks lovers
 ```
