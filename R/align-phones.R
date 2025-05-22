@@ -248,7 +248,7 @@ align_grid_trace <- function(grid, grid_moves, fun_match) {
 
 }
 
-align_grid_walk <- function(grid, fun_match = check, indel = -1) {
+align_grid_walk <- function(grid, fun_match, indel = -1) {
   grid_a <- rownames(grid)
   grid_b <- colnames(grid)
   alignment_a <- character(0)
@@ -342,7 +342,7 @@ xxxphone_match_partial <- function(x, y, match = 1, mismatch = -1) {
 phone_match_partial <- function(x, y, match = 1, mismatch = -1) {
   consonants <- c(
     "p", "m", "b", "f", "v", "θ", "ð", "t", "d", "n", "s", "z",
-    "ʃ", "ʒ", "tʃ", "dʒ", "k", "g", "ŋ", "h", "r", "l", "w", "j"
+    "ʃ", "ʒ", "tʃ", "dʒ", "k", "g", "ɡ", "ŋ", "h", "r", "l", "w", "j"
   )
   vowels <- c(
     "i", "ɪ", "ɛ", "æ", "ɜ˞", "ə", "ɚ", "ʌ",
@@ -383,7 +383,8 @@ phone_match_partial <- function(x, y, match = 1, mismatch = -1) {
 disguise_pairs <- function() {
   l <- list(
     c("ʌ", "ə"),
-    c("ɚ", "ɝ")
+    c("ɚ", "ɝ"),
+    c("g", "ɡ")
   )
   lapply(l, sort)
 }
@@ -395,6 +396,7 @@ friendly_pairs <- function() {
     c("p", "b"),
     c("t", "d"),
     c("k", "g"),
+    c("k", "ɡ"),
     c("f", "v"),
     c("tʃ", "dʒ"),
     c("θ", "ð"),
@@ -463,12 +465,12 @@ alignment_utterance.character <- function(x, label = NA_character_) {
 }
 
 #' @export
-alignment_utterance.alignment_utterance <- function(x) {
+alignment_utterance.alignment_utterance <- function(x, label = NA_character_) {
   x
 }
 
 #' @export
-format.alignment_utterance <- function(x) {
+format.alignment_utterance <- function(x, ...) {
   phones <- x$phones |>
     paste0(collapse = " ")
 
